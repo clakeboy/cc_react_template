@@ -1,0 +1,25 @@
+let DefaultTheme = {
+    foreground:'#4c2f2d',
+    background:'#e5e1cd',
+    cursor:'#86766d',
+    cursorAccent:'#000000',
+    selection:'rgba(179,177,161,0.4)',
+    black:'#000000',
+    blue:'#0228d5',
+    cyan:'#009ad5',
+    green:'#00a200',
+    magenta:'#d834d5',
+    red:'#d71e00',
+    white:'#d5d5d5',
+    yellow:'#da7e00',
+    brightBlack:'#919191',
+    brightBlue:'#0228d5',
+    brightCyan:'#009ad5',
+    brightGreen:'#00a200',
+    brightMagenta:'#d834d5',
+    brightRed:'#d71e00',
+    brightWhite:'#feffff',
+    brightYellow:'#da7e00',
+};
+
+export default DefaultTheme;
