@@ -1,0 +1,133 @@
+html,body {
+  height: 100%;
+  background-color: #eee;
+}
+#react-main {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--dark);
+}
+
+.ck-main {
+  max-width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.ck-left {
+  flex-shrink:0;
+  width:200px;
+  background-color: #f5f5f5;
+  //width: 230px;
+  //left: 0;
+  //position: fixed;
+  //border-right: 1px solid #e3e3e3;
+  //top: 0;
+  //height: 100%;
+  //padding-top: 61px;
+  //z-index: 2;
+}
+
+.main-content {
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #eee;
+}
+
+.ck-content-router {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.ck-content-router::-webkit-scrollbar {
+  width: 10px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 1px;
+  background-color: transparent;
+}
+
+.ck-content-router::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: #F90;
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent);
+}
+
+.ck-content-router::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+  background: transparent;
+}
+
+.ck-container {
+  padding: 1rem !important;
+  background-color: #eee;
+  font-size:.9rem;
+}
+
+.ck-clear-m {
+  margin: 0!important;
+}
+
+
+/**登录滑块验证按钮**/
+.nc-container .nc_scale span{
+  height: 34px!important;
+  line-height: 34px!important;
+}
+
+/**去掉阴影**/
+*{
+  outline: none!important;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0)!important;
+  -webkit-tap-highlight-color: transparent!important;
+}
+:focus{outline: none!important;}
+
+
+
+
+
+/****/
+.text_align-left p {
+  white-space: nowrap !important;
+  margin-bottom: 0 !important;
+}
+
+.set_style {
+  font-size: 1rem;
+
+  span {
+    color: #FF9900;
+  }
+}
+
+/**react-json-view**/
+.react-json-view {
+  font-family: "Microsoft YaHei UI" !important;
+  font-size: 12px !important;
+}
+
+.search-height {
+  > * {
+    margin-bottom: .5rem !important;
+  }
+}
+
+.list-group-overflow {
+  overflow-y: auto;
+  height: 100%;
+}
+.ff3322{
+  background: #ff3322!important;
+}
+
+.f-l-size {
+  font-size: 1.2rem;
+}
+.f-b-size {
+  font-size: 1.5rem;
+  width: 30px;
+}
