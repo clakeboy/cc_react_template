@@ -24,7 +24,6 @@ export default class App extends React.Component {
             Account:'Clake',
             user_name:'管理员'
         };
-        this.props.location.pathname = "/main"
     }
 
     componentDidMount() {
