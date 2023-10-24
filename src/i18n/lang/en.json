@@ -1,0 +1,48 @@
+{
+    "system_name":"DFC System",
+    "confirm":"Confirm",
+    "loading":"Loading",
+    "err":"Error info",
+    "ok":"Ok",
+    "cancel":"Cancel",
+    "save":"Saving...",
+    "success":"Saved successfully",
+    "nofund module":"not found module",
+    "user":{
+        "password":"Password",
+        "passvalid":"Please fill in the password, it cannot be empty",
+        "passempty":"enter the password",
+        "confirm":"Enter password again",
+        "confirmvalid":"Two passwords are inconsistent"
+    },
+    "login":{
+        "remember_me":"Remember user",
+        "sign_in":"Sign in",
+        "username":"Username",
+        "password":"Password",
+        "input_username":"Enter username",
+        "input_password":"Enter password",
+        "title":"Login DFC System",
+        "username error":"Username or password error",
+        "pls captcha verify":"Please CAPTCHA verify",
+        "passwd error":"Username or Password error"
+    },
+    "captcha":{
+        "default":"Click the button to verify",
+        "check":"CAPTCHA progress",
+        "error":"CAPTCHA failed",
+        "retry":"click retry",
+        "over":"Too many clicks",
+        "success":"CAPTCHA successfully",
+        "pls":"Please click",
+        "in_ord":"in order"
+    },
+    "header": {
+        "change":"Reset Password",
+        "logout":"Logout"
+    },
+    "menu":{
+        "system":"System Management",
+        "user":"User"
+    }
+}

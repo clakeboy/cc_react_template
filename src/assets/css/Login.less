@@ -1,18 +1,27 @@
 .ck-login {
-  max-width: 401px;
-  margin: 50px auto;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background-color: #efefef;
+  padding-top: 50px;
 }
 
 .ck-login-window {
+  background-color: #fff;
+  position: relative;
+  margin: 0 auto;
+  width: 320px;
   border-top: 5px solid;
   border-top-color: var(--warning);
-}
-
-.ck-login-window >.card-header {
-  background-color: #fff;
-  border-bottom: none;
-  font-size: 2rem;
-  padding-top:40px;
+  padding: 0 20px 20px 20px;
+  border-radius: 5px;
+  // border: 1px solid var(--secondary);
+  .login-header {
+    border-bottom: none;
+    font-size: 2rem;
+    padding:20px 0;
+    color: var(--secondary);
+  }
 }
 
 //.ck-login-window .form-control {
@@ -25,17 +34,16 @@
   margin-bottom: 1.5rem;
 }
 
-.ck-login-window .card-body {
-  padding: 20px 30px 15px;
+.ck-login-window .login-body {
+  padding: 10;
 }
 
-.ck-login-window .btn {
-  margin-top: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.login_ali_validate {
-  .nc_wrapper {
-    width: 100%!important;
+.language {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  .icon {
+    font-size: 2rem;
+    margin-right: .5rem;
   }
 }

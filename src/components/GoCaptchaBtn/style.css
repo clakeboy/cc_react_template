@@ -5,11 +5,11 @@
 
 .wg-cap-btn {
     width: 100%;
-    height: 48px;
+    /* height: 48px; */
 }
 .wg-cap-btn .wg-cap-btn__inner{
     width: 100%;
-    height: 48px;
+    /* height: 48px; */
     position: relative;
     letter-spacing: 1px;
 }
@@ -19,23 +19,20 @@
 .wg-cap-btn .wg-cap-state__default,.wg-cap-btn .wg-cap-state__check, .wg-cap-btn .wg-cap-state__error, .wg-cap-btn .wg-cap-state__success, .wg-cap-btn .wg-cap-state__over{
     position: absolute;
     width: 100%;
-    height: 48px;
+    /* height: 48px; */
     font-size: 13px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
     border-radius: 5px;
     display: inline-block;
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;
-    -webkit-appearance: none;
+    appearance: none;
     box-sizing: border-box;
     outline: none;
     margin: 0;
     transition: .1s;
     font-weight: 500;
-    -moz-user-select: none;
-    -webkit-user-select: none;
+    user-select: none;
 
     display:-webkit-box;
     display:-webkit-flex;
@@ -108,7 +105,6 @@
     margin-right: 12px;
     font-size: 14px;
     display: inline-block;
-    float: left;
     flex: 0;
 }
 .wg-cap-btn .wg-cap-btn__inner .wg-cap-btn__ico img{
