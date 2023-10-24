@@ -1,5 +1,5 @@
 {
-    "system_name":"DFC System",
+    "system_name":"CCTP System",
     "confirm":"Confirm",
     "loading":"Loading",
     "err":"Error info",
@@ -22,7 +22,7 @@
         "password":"Password",
         "input_username":"Enter username",
         "input_password":"Enter password",
-        "title":"Login DFC System",
+        "title":"Login CCTP System",
         "username error":"Username or password error",
         "pls captcha verify":"Please CAPTCHA verify",
         "passwd error":"Username or Password error"

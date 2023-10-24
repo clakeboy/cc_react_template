@@ -1,5 +1,5 @@
 {
-    "system_name":"DFC 系统",
+    "system_name":"CCTP 系统",
     "confirm":"提交",
     "loading":"加载中",
     "err":"错误提示",
@@ -12,7 +12,7 @@
         "password":"密码",
         "input_username":"输入用户名",
         "input_password":"输入密码",
-        "title":"登录 DFC 系统",
+        "title":"登录 CCTP 系统",
         "username error":"用户名或密码错误",
         "pls captcha verify":"请先通过人机验证",
         "passwd error":"用户或密码错误"
