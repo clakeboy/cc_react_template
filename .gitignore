@@ -8,3 +8,4 @@ db
 *.mongodb.js
 assets/html
 go.sum
+.DS_Store
