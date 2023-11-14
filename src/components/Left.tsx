@@ -22,7 +22,7 @@ export default function Left(props:AnyProps) {
                 name:'user_manage',
                 text:t('menu.user'),
                 icon:'user',
-                link:'/account/list'
+                link:'/user/list'
             },
             {
                 name:'',

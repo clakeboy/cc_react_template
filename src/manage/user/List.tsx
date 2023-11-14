@@ -48,7 +48,7 @@ export default function List(props: any): any {
 
     function getUserData(page: number) {
         setLoading(true)
-        Fetch('/serv/account/query', { page: page, number: 30, query: buildCondition(conditions) }, (res: Response) => {
+        Fetch('/serv/user/query', { page: page, number: 30, query: buildCondition(conditions) }, (res: Response) => {
             setLoading(false)
             if (res.status) {
                 setList(res.data.list);

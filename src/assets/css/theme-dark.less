@@ -1,53 +1,111 @@
 .theme-dark {
-    background-color: #000!important;
+    background-color: #000 !important;
     color: #fff !important;
-  
+
     .ck-check-icon {
-      color: #fff!important;
+        color: #fff !important;
     }
 
     .ck-login {
-      background-color: #000!important;
+        background-color: #000 !important;
     }
-  
+
     .ck-login-window {
-      background-color: var(--bs-gray-dark);
+        background-color: var(--bs-gray-dark);
     }
-  
+
     .login-header {
-      color: #fff !important;
+        color: #fff !important;
     }
 
     .theme-switch {
-      background-color: #000 !important;
-      .circle {
-        border: 1px solid rgb(206, 212, 218);
-      }
-    }
-  
-    input {
-      background-color: #000 !important;
-      border-color: #666 !important;
-      color: #fff !important;
-      &:focus {
-        border-color: #666;
-        color: #fff;
-        background-color: #000;
-        box-shadow: 0 0 0 .2rem rgba(0, 0, 0, .25);
-      }
-    }
-    .ck-combo {
-      color: #fff !important;
-      background-color: var(--bs-gray-dark) !important;
-      .table {
-        color: #fff !important;
-      }
+        background-color: #000 !important;
+        .circle {
+            border: 1px solid rgb(206, 212, 218);
+        }
     }
 
-    .table-hover {
-      tbody tr:hover {
-        color: #fff;
-        background-color: rgba(0, 0, 0, 0.7);
+    // input {
+    //   background-color: #000 !important;
+    //   border-color: #666 !important;
+    //   color: #fff !important;
+    //   &:focus {
+    //     border-color: #666;
+    //     color: #fff;
+    //     background-color: #000;
+    //     box-shadow: 0 0 0 .2rem rgba(0, 0, 0, .25);
+    //   }
+    // }
+    .ck-combo {
+        // color: #fff !important;
+        background-color: var(--bs-gray-dark) !important;
+        // .table {
+        //   color: #fff !important;
+        // }
+    }
+
+    .main-header {
+      .user-info {
+        background-color: #000;
+        .panel {
+          background-color: #000;
+          .menu-item:hover {
+            background-color: #333333;
+          }
+        }
+        &:hover {
+          .avatar {
+            box-shadow: 0 0 2px 2px var(--bs-primary-text-emphasis);
+          }
+        }
+      }
+      .ck-header-left {
+        color: var(--bs-primary-text-emphasis);
+      }
+      border-bottom-color: #333333;
+    }
+    
+
+    .main-content {
+      background-color: #000;
+    }
+
+    .ck-tree-menu {
+      background-color: var(--bs-body-bg);
+      .menu-item {
+        color: var(--bs-white);
+        &:hover {
+          background-color: #2f3236;
+        }
+      }
+      .active {
+        background-color: #1c1c1c;
+        color: var(--bs-primary-text-emphasis);
+      }
+      .children {
+        background-color: #000;
+        .text:hover {
+          background-color: #2f3236;
+        }
+        .active {
+          color: var(--bs-primary-text-emphasis);
+        }
       }
     }
-  }
+    .ck-left-main {
+      .small-btn {
+        color: rgba(255, 255, 255, 0.7);
+        background-color: #000;
+        border-color: rgba(255, 255, 255, 0.7);
+        &:hover {
+          color:#fff;
+          border-color: #fff;
+        }
+      }
+    }
+    .ck-scroll {
+      .ck-scroll-bar {
+        background-color: #acacac;
+      }
+    }
+}
