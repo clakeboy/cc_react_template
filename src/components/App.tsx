@@ -9,11 +9,22 @@ import '../assets/css/main.less';
 import { changeLanguage } from 'i18next';
 import Left from './Left';
 import Fetch from '../common/Fetch';
+import Storage from '../common/Storage';
 function changeDark(flag: boolean) {
     const main = document.querySelector('#react-main');
-    if (main) {
-        main.classList.toggle('theme-dark');
+    const html = document.querySelector('html')
+    if (flag) {
+        if (!main?.classList.contains('theme-dark')) {
+            main?.classList.add('theme-dark');
+        }
+        if (html) 
+            html.dataset.bsTheme = 'dark';
+    } else {
+        main?.classList.remove('theme-dark');
+        if (html)
+            html.dataset.bsTheme = 'light';
     }
+    Storage.set("theme-dark",flag)
 }
 
 export default function App() {

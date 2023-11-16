@@ -7,6 +7,7 @@ import { useLocation, useNavigationType } from 'react-router-dom';
 import Loader from './Loader';
 import { GetModules } from '../common/Funcs';
 import { t } from 'i18next';
+import Storage from '../common/Storage';
 
 function getClasses(): string {
     let base = 'd-flex align-items-center main-header';
@@ -21,15 +22,13 @@ interface HeaderProp extends CommonProps {
 export default function Header(props: HeaderProp) {
     const [back, setBack] = useState(false);
     const [avatar, setAvatar] = useState('');
-    const [dark, setDark] = useState(false);
+    const [dark, setDark] = useState(props.dark);
     const naviType = useNavigationType();
     let location = useLocation();
     let modal = useRef<CKModal>(null);
     useEffect(() => {
-        console.log(naviType);
-
         // @ts-ignore
-        const avatar = multiavatar(props.user?.user_name);
+        const avatar = multiavatar(props.user?.name);
         setAvatar(avatar);
     }, [location]);
 
@@ -65,7 +64,7 @@ export default function Header(props: HeaderProp) {
                 <div className="float-end px-3 user-info">
                     <div className="h-100 d-flex align-items-center align-content-center" id="menu-avatar">
                         <div className="avatar me-2" dangerouslySetInnerHTML={{ __html: avatar }} />
-                        <div>{props.user?.user_name}</div>
+                        <div>{props.user?.name}</div>
                         <DropPanel className="bg-white" borderColor="#0d6efd" selector="#menu-avatar">
                             <div className="panel">
                                 <div className="head p-3 text-center">
@@ -73,8 +72,8 @@ export default function Header(props: HeaderProp) {
                                         className="m-auto"
                                         style={{ width: '100px' }}
                                         dangerouslySetInnerHTML={{ __html: avatar }}></div>
-                                    <div>{props.user?.user_name}</div>
-                                    <div className="small">{props.user?.login_name}</div>
+                                    <div>{props.user?.name}</div>
+                                    <div className="small">{props.user?.name}</div>
                                 </div>
                                 <div className="py-2">
                                     <div
@@ -96,7 +95,7 @@ export default function Header(props: HeaderProp) {
                                         <div className="col-3 text-center">
                                             <Icon icon="cogs" />
                                         </div>
-                                        <div className="col">{t('header.change')}</div>
+                                        <div className="col">修改密码</div>
                                     </div>
                                     <div
                                         className="menu-item px-3 row"
@@ -106,7 +105,7 @@ export default function Header(props: HeaderProp) {
                                         <div className="col-3 text-center">
                                             <Icon icon="power-off" />
                                         </div>
-                                        <div className="col">{t('header.logout')}</div>
+                                        <div className="col">退出登录</div>
                                     </div>
                                 </div>
                             </div>

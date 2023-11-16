@@ -41,7 +41,13 @@ class TreeMenu extends React.PureComponent<Props, State> {
         this.domId = 'tree-menu-' + Common.RandomString(16);
     }
 
-    componentDidMount() {}
+    componentDidMount() {
+        let list = document.querySelectorAll('.ck-tree-menu>.children')
+        list.forEach((elm)=>{
+            let height = this.getHeight(elm as HTMLElement);
+            (elm as HTMLElement).dataset['height'] = height
+        })
+    }
 
     UNSAFE_componentWillReceiveProps(nextProp: Props) {
         if (this.state.data !== nextProp.data) {
@@ -56,28 +62,35 @@ class TreeMenu extends React.PureComponent<Props, State> {
 
         return classNames(base, this.props.className);
     }
+
+    getHeight(dom:HTMLElement):string {
+        dom.style.height = "unset"
+        let height = getComputedStyle(dom).height
+        dom.style.height = "0"
+        return height
+    }
     
     openHandler = (e: React.MouseEvent) => {
-        clearTimeout(this.subMenuId)
-        e.currentTarget.classList.toggle('open');
-        if (e.currentTarget.parentNode) {
-            const sub = e.currentTarget.parentNode.querySelector('.sub-menu') as HTMLElement
-            if (sub.classList.contains('hide-menu')) {
-                sub.classList.remove('hide-menu')
-                sub.style.padding = '10px 0';
-                sub.style.maxHeight = '500px';
-                setTimeout(() => {
-                    sub.style.maxHeight = sub.clientHeight+'px'
-                },300)
-            } else {
-                // sub.dataset.hg = sub.clientHeight+'px'
-                sub.style.maxHeight = "0"
-                sub.style.padding = '0';
-                sub.classList.add('hide-menu')
+        if (e.currentTarget.nextElementSibling) {
+            const dom = e.currentTarget
+            const children = e.currentTarget.nextElementSibling as HTMLElement
+            let status = children.dataset['status']
+            let height = children.dataset['height']
+            if (!height) {
+                height = this.getHeight(children)
+                children.dataset['height'] = height
             }
-            // $(e.currentTarget.parentNode.querySelector('.sub-menu') as HTMLElement).slideToggle(200);
+            if (status && status === 'open') {
+                children.style.height = '0'
+                children.dataset['status'] = 'close'
+                dom.classList.remove('children-open')
+            } else {
+                children.style.height = height
+                children.dataset['status'] = 'open'
+                dom.classList.add('children-open')
+            }
         }
-        // e.currentTarget.parentNode.querySelector('.sub-menu').classList.toggle('show');
+        // e.currentTarget.nextElementSibling?.classList.toggle('children-open')
     };
 
     clickHandler(item:Menu,child?:Menu) {
@@ -111,10 +124,10 @@ class TreeMenu extends React.PureComponent<Props, State> {
                         }
 
                         if (this.state.current === item) {
-                            className += ' active'
+                            className += ' active children-open'
                         }
                         return <>
-                            <div key={idx} className={className} onClick={this.clickHandler(item)}>
+                            <div key={idx} className={className} onClick={item.children?this.openHandler:this.clickHandler(item)}>
                                 <div className='icon'><Icon icon={item.icon}/></div>
                                 <div className='text flex-grow-1'>{item.text} <span/></div>
                             </div>

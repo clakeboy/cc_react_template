@@ -55,9 +55,11 @@
   }
 
   .children {
+    box-sizing: border-box;
     background-color: #eee;
     font-size: .85rem;
-    border-top: 1px solid #e6e6e6;
+    overflow: hidden;
+    transition: height .3s;
     cursor: pointer;
     .text {
       padding: 10px 0 10px 50px;
@@ -71,6 +73,14 @@
     }
     .active {
       color: var(--bs-primary);
+    }
+  }
+
+  .children-open {
+    .text > span {
+      &:before {
+        transform: rotate(90deg);
+      }
     }
   }
 }
