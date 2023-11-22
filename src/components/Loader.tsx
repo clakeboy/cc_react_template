@@ -1,7 +1,7 @@
 import { Common, Load } from "@clake/react-bootstrap4"
 import { Component, useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
-import {t} from 'i18next';
+
 function useLoadState() {
     const [Instance, setInstance] = useState(undefined)
     const [noFound, setNoFound] = useState(false)
@@ -54,7 +54,7 @@ export default function Loader(props: LoaderProps) {
     } else {
         return (
             <div className='text-center mt-5 mb-5'>
-                {noFound ? <div className="text-danger">{error}</div> : <Load>{t('loading')}</Load>}
+                {noFound ? <div className="text-danger">没有找到模块<br />{error}</div> : <Load>模块加载中</Load>}
             </div>
         )
     }

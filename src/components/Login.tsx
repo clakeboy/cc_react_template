@@ -127,9 +127,7 @@ class Login extends React.Component<any, State> {
                 this.setLogin(res.data);
             } else {
                 this.modal.alert({
-                    title: t('err'), 
-                    content: t(`login.${res.msg}`), 
-                    callback: () => {
+                    title: t('err'), content: t(`login.${res.msg}`), callback: () => {
                         this.setState({
                             captStatus: 'default',
                             captAutoRefreshCount: 0,
@@ -224,7 +222,7 @@ class Login extends React.Component<any, State> {
             <div className='ck-login'>
                 <div className="ck-login-window shadow">
                     <div className="login-header text-center">
-                        <Icon icon='globe' /> {t('system_name')}
+                        <Icon icon='wallet' /> {t('system_name')}
                     </div>
                     <div className="login-body">
                         <Input className='mb-3' label={t('login.username')} placeholder={t('login.input_username')} data={this.state.page_data.user_name} onChange={this.changeHandler('user_name')} />

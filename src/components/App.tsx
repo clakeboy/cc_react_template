@@ -6,10 +6,12 @@ import { GetQuery, GetModules, GetLang } from '../common/Funcs';
 import { useEffect, useState } from 'react';
 import Login from './Login';
 import '../assets/css/main.less';
-import { changeLanguage } from 'i18next';
+import '../assets/css/theme-dark.less'
+import { t, changeLanguage } from 'i18next';
 import Left from './Left';
 import Fetch from '../common/Fetch';
 import Storage from '../common/Storage';
+
 function changeDark(flag: boolean) {
     const main = document.querySelector('#react-main');
     const html = document.querySelector('html')
@@ -33,8 +35,13 @@ export default function App() {
     const [user, setUser] = useState(undefined);
     const [title, setTitle] = useState('');
     const location = useLocation();
+    
     useEffect(() => {
-        console.log('location change', location);
+        // console.log('location change', location);
+        let flag = Storage.get("theme-dark")
+        if (flag) {
+            changeDark(JSON.parse(flag))
+        }
     }, []);
 
     function changeLang(lang: string) {
@@ -63,6 +70,9 @@ export default function App() {
         document.title = 'BTM - '+title;
     }
 
+    let darkStore = Storage.get("theme-dark")
+    const darkFlag = darkStore?JSON.parse(darkStore):false;
+
     if (!login) {
         return (
             <Login
@@ -80,6 +90,7 @@ export default function App() {
                 title={title}
                 lang={lang}
                 user={user}
+                dark={darkFlag}
                 setTitle={changeTitle}
                 setLang={changeLang}
                 setLogin={changeLogin}

@@ -9,12 +9,13 @@ export default defineConfig({
   ],
   publicDir: "./public",
   build: {
-    assetsDir: "assets"
+    assetsDir: "assets",
+    outDir: '../assets/html',
   },
   server: {
     proxy: {
       '^/serv/.*': {
-        target: 'http://localhost:12352',
+        target: 'http://localhost:12355',
         changeOrigin: true
       }
     }
