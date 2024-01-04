@@ -13,7 +13,7 @@ import Fetch from '../common/Fetch';
 import Storage from '../common/Storage';
 
 function changeDark(flag: boolean) {
-    const main = document.querySelector('#react-main');
+    const main = document.body
     const html = document.querySelector('html')
     if (flag) {
         if (!main?.classList.contains('theme-dark')) {

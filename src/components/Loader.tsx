@@ -1,7 +1,7 @@
 import { Common, Load } from "@clake/react-bootstrap4"
 import { Component, useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
-
+import {t} from 'i18next';
 function useLoadState() {
     const [Instance, setInstance] = useState(undefined)
     const [noFound, setNoFound] = useState(false)
@@ -20,7 +20,7 @@ function explainUrl(path: string) {
     arr.shift();
     let module = arr.pop();
     if (!module) {
-        module = 'Main';
+        module = 'shipment/Main';
     }
     module = Common.under2hump(module)
     let ext_path = arr.length > 0 ? '/' : '';
@@ -30,12 +30,13 @@ function explainUrl(path: string) {
 
 export default function Loader(props: LoaderProps) {
     const [Instance, setInstance] = useState(undefined)
+    const [loadPath, setLoadPath] = useState(props.loadPath)
     const [noFound, setNoFound] = useState(false)
     const [error, setError] = useState('')
     const location = useLocation()
-    let filePath = explainUrl(props.loadPath);
-
+    
     useEffect(() => {
+        let filePath = explainUrl(props.loadPath);
         props.import(filePath).then((component: any) => {
             if (typeof component === "string") {
                 setNoFound(true)
@@ -44,17 +45,17 @@ export default function Loader(props: LoaderProps) {
             } else {
                 setInstance(() => component)
             }
+            setLoadPath(props.loadPath)
         })
-        
-    }, [location])
-
-    if (Instance !== undefined) {
+    }, [props.loadPath])
+    
+    if (Instance !== undefined && loadPath === props.loadPath) {
         let Elem: typeof Component = Instance
         return <Elem {...props}/>
     } else {
         return (
             <div className='text-center mt-5 mb-5'>
-                {noFound ? <div className="text-danger">没有找到模块<br />{error}</div> : <Load>模块加载中</Load>}
+                {noFound ? <div className="text-danger">{error}</div> : <Load>{t('loading')}</Load>}
             </div>
         )
     }

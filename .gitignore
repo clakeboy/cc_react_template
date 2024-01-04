@@ -9,3 +9,4 @@ db
 assets/html
 go.sum
 .DS_Store
+package-lock.json
