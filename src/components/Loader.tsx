@@ -20,7 +20,7 @@ function explainUrl(path: string) {
     arr.shift();
     let module = arr.pop();
     if (!module) {
-        module = 'shipment/Main';
+        module = 'Main';
     }
     module = Common.under2hump(module)
     let ext_path = arr.length > 0 ? '/' : '';
