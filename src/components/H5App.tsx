@@ -15,35 +15,7 @@ export default function App() {
     useEffect(() => {
         
     }, []);
-    function wxLogin(){
-        //判断url是否有token
-        let urlArr =parseUrlParams(location.search)
-        let wxOpen = ""
-        if(urlArr['wx'] !==undefined && urlArr['wx'] !==null && urlArr["wx"] !==''){
-            wxOpen=urlArr['wx']
-        }else{
-            let urlArr =parseUrlParams(document.URL)
-            if(urlArr["wx"] !==undefined && urlArr["wx"] !==null && document.URL.indexOf("wx=") > -1){
-                wxOpen = document.URL.split("wx=")[1]
-                wxOpen = wxOpen.split('#')[0]
-            }
-        }
-        if(wxOpen !==''){
-            //开始请求
-            Fetch("/serv/currency/query_wx_user",{wx:wxOpen},function (res:any){
-                if(res.status && res.data !==null){
-                    storage.set("pis-user",JSON.stringify(res.data))
-                    setLogin(true)
-                    setUser({...res.data})
-                }else{
-                }
-            })
-        }else{
-            let backUrl = document.location.href
-            //跳转地址并获取参数
-            window.location.href="https://pf.tubaozhang.com/ota/user/auth/wxd0cd00c714a287d3?u="+encodeURIComponent(backUrl)+"&c="+encodeURIComponent(backUrl)
-        }
-    }
+    
     //parseUrlParams 解析url
     function parseUrlParams(url:string) {
         // 解析参数的正则表达式
@@ -78,11 +50,7 @@ export default function App() {
         setTitle(title);
         document.title = title;
     }
-    // if (!login) {
-    //     return (
-    //         <div className={"bg-white text-center mt-5"}>正在授权登录中，请稍等...</div>
-    //     );
-    // }
+
     return (
         <Loader
             loadPath={location.pathname}
