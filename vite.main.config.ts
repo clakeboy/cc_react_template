@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import checker from 'vite-plugin-checker';
 import { viteExternalsPlugin } from 'vite-plugin-externals'
+import mpaPlugin from 'vite-plugin-mpa-plus'
 // https://vitejs.dev/config/
 export default defineConfig({
     base: './',
@@ -15,6 +16,30 @@ export default defineConfig({
             // '@clake/react-bootstrap4':'ReactBootstrapV4',
             // 'react':'React',
             // 'react-dom':'ReactDOM',
+        }),
+        mpaPlugin({
+            pages:{
+                manage: {
+                    entry: 'src/main.tsx',
+                    filename: '/manage.html',
+                    template: 'src/assets/template/manage/index.html',
+                    inject: {
+                        data: {
+                            title: "DFC SYSTEM"
+                        }
+                    }
+                },
+                app: {
+                    entry: 'src/app.tsx',
+                    filename: '/app.html',
+                    template: 'src/assets/template/h5/index.html',
+                    inject: {
+                        data: {
+                            title: "DFC SYSTEM H5"
+                        }
+                    }
+                }
+            }
         })
     ],
     publicDir: './public',
