@@ -25,7 +25,7 @@ export default defineConfig({
                     template: 'src/assets/template/manage/index.html',
                     inject: {
                         data: {
-                            title: "DFC SYSTEM"
+                            title: "SYSTEM"
                         }
                     }
                 },
@@ -35,7 +35,7 @@ export default defineConfig({
                     template: 'src/assets/template/h5/index.html',
                     inject: {
                         data: {
-                            title: "DFC SYSTEM H5"
+                            title: "SYSTEM H5"
                         }
                     }
                 }
