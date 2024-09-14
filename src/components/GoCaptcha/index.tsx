@@ -88,8 +88,8 @@ export class GoCaptcha extends Component<Props, State> {
         const RenderDotItem = () => {
             const { dots = [] } = this.state
             return <>
-                {dots.map((dot) => (
-                    <div className="wg-cap-wrap__dot" style={{ top: `${dot.y}px`, left: `${dot.x}px` }}>
+                {dots.map((dot,idx) => (
+                    <div key={idx} className="wg-cap-wrap__dot" style={{ top: `${dot.y}px`, left: `${dot.x}px` }}>
                         <span>{dot.index}</span>
                     </div>
                 ))}
