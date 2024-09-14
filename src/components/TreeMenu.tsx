@@ -126,7 +126,7 @@ class TreeMenu extends React.PureComponent<Props, State> {
                         if (this.state.current === item) {
                             className += ' active children-open'
                         }
-                        return <>
+                        return <React.Fragment key={idx}>
                             <div key={idx} className={className} onClick={item.children?this.openHandler:this.clickHandler(item)}>
                                 <div className='icon'><Icon icon={item.icon}/></div>
                                 <div className='text flex-grow-1'>{item.text} <span/></div>
@@ -137,7 +137,7 @@ class TreeMenu extends React.PureComponent<Props, State> {
                                     return <div className={'text'+active} key={childIdx} onClick={this.clickHandler(item,child)}>{child.text}</div>
                                 })}
                             </div>}
-                        </>
+                        </React.Fragment>
                     })}
                 </div>
                 <Scroll selector={`#${this.domId}`} />
