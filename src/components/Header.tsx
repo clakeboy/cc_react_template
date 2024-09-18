@@ -84,7 +84,7 @@ export default function Header(props: HeaderProp) {
                                                 header: true,
                                                 content: (
                                                     <Loader
-                                                        loadPath="/user/Change"
+                                                        loadPath="/account/Change"
                                                         id={props.user?.id}
                                                         import={GetModules}
                                                     />

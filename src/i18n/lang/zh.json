@@ -5,6 +5,13 @@
     "err":"错误提示",
     "ok":"确定",
     "cancel":"取消",
+    "user":{
+        "password":"密码",
+        "passvalid":"请填写密码，密码不能为空",
+        "passempty":"输入密码",
+        "confirm":"请再次输入密码",
+        "confirmvalid":"两次密码不一致"
+    },
     "login":{
         "sign_in":"确认登录",
         "remember_me":"记住用户名",

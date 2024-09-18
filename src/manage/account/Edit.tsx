@@ -27,7 +27,7 @@ export default function Edit({id,callback,parent}:Props):any {
     useEffect(()=>{
         if (id !== undefined) {
             modal.current?.loading("加载中...")
-            Fetch('/serv/user/find',{id:id},(res:Response)=>{
+            Fetch('/serv/acc/find',{id:id},(res:Response)=>{
                 modal.current?.close();
                 if (res.status) {
                     setData(res.data)
@@ -54,7 +54,7 @@ export default function Edit({id,callback,parent}:Props):any {
             return
         }
         modal.current?.loading('保存数据中...')
-        Fetch('/serv/user/save',{data:data},(res:Response)=>{
+        Fetch('/serv/acc/save',{data:data},(res:Response)=>{
             modal.current?.close();
             if (res.status) {
                 modal.current?.alert('保存数据成功！',()=>{
