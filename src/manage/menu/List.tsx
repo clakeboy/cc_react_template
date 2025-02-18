@@ -4,6 +4,7 @@ import {
     Card,
     Container,
     Form,
+    Icon,
     Input,
     Modal,
     Pagination,
@@ -42,20 +43,30 @@ export default function List(props: any): any {
     const [conditions, setConditions] = useState<conditions>({});
     let modal = useRef<CKModal>(null);
     useEffect(() => {
-        getUserData(1);
-        props.setTitle && props.setTitle('后台用户管理')
+        getData(1);
+        props.setTitle && props.setTitle('系统菜单管理')
     }, []);
 
-    function getUserData(page: number) {
+    function getData(page: number) {
         setLoading(true)
-        Fetch('/serv/acc/query', { page: page, number: 30, query: buildCondition(conditions) }, (res: Response) => {
+        Fetch('/serv/menu/query', { page: page, number: 1000, query: buildCondition(conditions) }, (res: Response) => {
             setLoading(false)
             if (res.status) {
-                setList(res.data.list);
-                setCount(res.data.count);
-                setPage(page);
+                setList(res.data);
             } else {
-                modal.current?.alert('用户数据获取出错：' + res.msg);
+                modal.current?.alert('数据获取出错：' + res.msg);
+            }
+        });
+    }
+
+    function reIndex() {
+        setLoading(true)
+        Fetch('/serv/menu/reindex', { }, (res: Response) => {
+            setLoading(false)
+            if (res.status) {
+                getData(1);
+            } else {
+                modal.current?.alert('重建索引出错：' + res.msg);
             }
         });
     }
@@ -67,38 +78,52 @@ export default function List(props: any): any {
                     icon="search"
                     className="me-1"
                     onClick={() => {
-                        getUserData(1);
+                        getData(1);
                     }}>
                     查询
                 </Button>
                 <Button icon="trash-alt" outline theme={Theme.danger}>
                     清除
                 </Button>
+                <Button className='ms-1' onClick={()=>{
+                    reIndex()
+                }} icon='table' tip='重建索引' theme={Theme.dark}/>
                 <Button className='float-end' theme={Theme.success} onClick={()=>{
                     modal.current?.view({
-                        title:"添加用户",
+                        title:"添加菜单",
                         header:true,
-                        content: <Loader loadPath="/account/Edit" import={GetModules}/>,
-                        width:'400px',
+                        content: <Loader loadPath="/menu/Edit" import={GetModules} callback={()=>{
+                            getData(1)
+                        }}/>,
+                        width:'600px',
                     })
-                }}>添加用户</Button>
+                }}>添加菜单</Button>
             </div>
             <hr />
             <div className="comm-form">
                 <Form onChange={(field,val)=>{
                     setConditions({...conditions,[field]:val})
                 }}>
-                    <Input field='name' placeholder="用户名查找" data={conditions.name ?? ''} />
+                    <Input field='name' placeholder="菜单名查找" data={conditions.name ?? ''} />
                 </Form>
             </div>
             
             <div>
-                <Table headerTheme={Theme.primary} loading={loading} hover select={false} emptyText="没有数据" data={list}>
-                    <TableHeader field="id" text="用户 Id" />
-                    <TableHeader field="name" text="用户名" />
-                    <TableHeader field="group_name" text="分组" />
-                    <TableHeader field="passwd" text="密码" onFormat={()=>{
-                        return <div className='badge bg-secondary'>加密</div>
+                <Table headerTheme={Theme.primary} loading={loading} hover select={false} tree emptyText="没有数据" data={list}>
+                <TableHeader field="id" text="ID" />
+                    <TableHeader field="sort" text="排序" />
+                    <TableHeader field="icon" text="图标" align='center' onFormat={(val)=>{
+                        if (!val) return "-"
+                        return <Icon icon={val}/>
+                    }} />
+                    <TableHeader field="text" text="菜单文字" tree/>
+                    <TableHeader field="name" text="菜单名"/>
+                    <TableHeader field='link' text="跳转地址" onFormat={(val)=>{
+                        if (!val) return <span className='badge bg-secondary'>无</span>
+                        return val
+                    }}/>
+                    <TableHeader field="step" text="提示栏" align='center' onFormat={(val)=>{
+                        return val?<Icon icon="check-square"/>:''
                     }}/>
                     <TableHeader
                         field="created_date"
@@ -112,7 +137,7 @@ export default function List(props: any): any {
                         field="modified_date"
                         text="修改时间"
                         onFormat={(val) => {
-                            if (!val) return '';
+                            if (!val) return <div className='badge bg-secondary'>无</div>;
                             return dayjs.unix(val).format('YYYY-MM-DD HH:mm:ss');
                         }}
                     />
@@ -120,24 +145,24 @@ export default function List(props: any): any {
                         return <>
                         <Button onClick={()=>{
                             modal.current?.view({
-                                title:"修改用户数据",
+                                title:"修改菜单",
                                 header:true,
-                                content: <Loader loadPath="/account/Edit" id={row.id} import={GetModules}/>,
-                                width:'400px',
+                                content: <Loader loadPath="/menu/Edit" id={row.id} import={GetModules}/>,
+                                width:'600px',
                             })
                         }} size='sm' theme={Theme.success}>修改</Button>
                         </>
                     }}/>
                 </Table>
-                <Pagination
+                {/* <Pagination
                     count={count}
                     current={page}
                     number={30}
                     showPages={10}
                     onSelect={(page, showNumber) => {
-                        getUserData(page);
+                        getData(page);
                     }}
-                />
+                /> */}
             </div>
             <Modal ref={modal} />
         </Card>

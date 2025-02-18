@@ -53,7 +53,7 @@ export default function Edit({id,callback,parent}:Props):any {
                     return val === data.passwd
                 },text:t('user.confirmvalid')}} placeholder={t('user.confirm')} type="password" data={data.comfirm}/>
             </Form>
-            <div className="mt-3">
+            <div>
                 <Button className="float-end" icon="save" theme={Theme.success} onClick={()=>{
                     saveData()
                 }}>{t('confirm')}</Button>

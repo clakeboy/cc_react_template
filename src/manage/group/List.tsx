@@ -1,5 +1,6 @@
 import {
     Button,
+    ButtonGroup,
     CKModal,
     Card,
     Container,
@@ -12,7 +13,7 @@ import {
     Theme,
 } from '@clake/react-bootstrap4';
 import dayjs from 'dayjs';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Fetch from '../../common/Fetch';
 import { Condtion, Response } from '../../common/Common';
 import Loader from '../../components/Loader';
@@ -43,19 +44,20 @@ export default function List(props: any): any {
     let modal = useRef<CKModal>(null);
     useEffect(() => {
         getUserData(1);
-        props.setTitle && props.setTitle('后台用户管理')
+        console.log(props.user)
+        props.setTitle && props.setTitle('后台用户分组管理')
     }, []);
 
     function getUserData(page: number) {
         setLoading(true)
-        Fetch('/serv/acc/query', { page: page, number: 30, query: buildCondition(conditions) }, (res: Response) => {
+        Fetch('/serv/group/query', { page: page, number: 30, query: buildCondition(conditions) }, (res: Response) => {
             setLoading(false)
             if (res.status) {
                 setList(res.data.list);
                 setCount(res.data.count);
                 setPage(page);
             } else {
-                modal.current?.alert('用户数据获取出错：' + res.msg);
+                modal.current?.alert('数据获取出错：' + res.msg);
             }
         });
     }
@@ -76,30 +78,26 @@ export default function List(props: any): any {
                 </Button>
                 <Button className='float-end' theme={Theme.success} onClick={()=>{
                     modal.current?.view({
-                        title:"添加用户",
+                        title:"添加用户组",
                         header:true,
-                        content: <Loader loadPath="/account/Edit" import={GetModules}/>,
+                        content: <Loader loadPath="/group/Edit" import={GetModules}/>,
                         width:'400px',
                     })
-                }}>添加用户</Button>
+                }}>添加分组</Button>
             </div>
             <hr />
             <div className="comm-form">
                 <Form onChange={(field,val)=>{
                     setConditions({...conditions,[field]:val})
                 }}>
-                    <Input field='name' placeholder="用户名查找" data={conditions.name ?? ''} />
+                    <Input field='name' placeholder="用户组名查找" data={conditions.name ?? ''} />
                 </Form>
             </div>
             
             <div>
-                <Table headerTheme={Theme.primary} loading={loading} hover select={false} emptyText="没有数据" data={list}>
-                    <TableHeader field="id" text="用户 Id" />
-                    <TableHeader field="name" text="用户名" />
-                    <TableHeader field="group_name" text="分组" />
-                    <TableHeader field="passwd" text="密码" onFormat={()=>{
-                        return <div className='badge bg-secondary'>加密</div>
-                    }}/>
+                <Table loading={loading} hover select={false} headerTheme={Theme.primary} emptyText="没有数据" data={list}>
+                    <TableHeader field="id" text="组Id" />
+                    <TableHeader field="name" text="用户组名" />
                     <TableHeader
                         field="created_date"
                         text="创建时间"
@@ -117,16 +115,16 @@ export default function List(props: any): any {
                         }}
                     />
                     <TableHeader field="modified_date" text="操作" align='center' onFormat={(val,row)=>{
-                        return <>
+                        return <ButtonGroup>
                         <Button onClick={()=>{
                             modal.current?.view({
-                                title:"修改用户数据",
+                                title:"修改用户组",
                                 header:true,
-                                content: <Loader loadPath="/account/Edit" id={row.id} import={GetModules}/>,
+                                content: <Loader loadPath="/group/Edit" id={row.id} import={GetModules}/>,
                                 width:'400px',
                             })
                         }} size='sm' theme={Theme.success}>修改</Button>
-                        </>
+                        </ButtonGroup>
                     }}/>
                 </Table>
                 <Pagination
