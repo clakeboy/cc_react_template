@@ -1,0 +1,45 @@
+.boltdb {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 35px 1fr;
+}
+
+.boltdb-tools {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+}
+
+.boltdb-main {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+}
+
+.boltdb-main .db-list {
+    width: 200px;
+    overflow: auto;
+}
+.boltdb-main .db-main {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.boltdb-main .pages {
+    position: absolute;
+    display: inline;
+    right: 10px;
+    bottom: 10px;
+    ul {
+        margin-bottom: 0;
+    }
+    .hidden-btn {
+        font-size: 1.2rem;
+        padding: 2px 8px;
+        cursor: pointer;
+    }
+}

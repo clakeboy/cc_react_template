@@ -267,14 +267,33 @@ export default function List(props: any): any {
         }
     }
 
+    function deleteTable(tableName:string) {
+        modal.current?.confirm({
+            content:"确定删除这个数据表？删除后，数据将无法恢复！"
+        },(flag)=>{
+            if (flag) {
+                Fetch('/serv/bolt/delete_bucket', { name: tableName }, (res: Response) => {
+                    if (res.status) {
+                        getMainTables();
+                    } else {
+                        modal.current?.alert('删除数据表出错：' + res.msg);
+                    }
+                })
+            }
+        })
+    }
+
     return (
         <div className='boltdb h-100' id='bolt-main' onDragOver={(e)=>{
             e.preventDefault();
         }}>
             <div className='boltdb-tools'>
-                <div className="filter">
-                    <Button size='sm' icon='list' tip='下载数据库文件' onClick={()=>{
+                <div className="filter comm-form">
+                    <Button size='sm' icon='list' theme={Theme.success} tip='下载数据库文件' onClick={()=>{
                         downloadDb()
+                    }}></Button>
+                    <Button size='sm' className='ms-auto' icon='sync-alt' tip='刷新列表' onClick={()=>{
+                        getMainTables()
                     }}></Button>
                 </div>
                 <div className='comm-form'>
@@ -393,9 +412,11 @@ export default function List(props: any): any {
             </div>
             <Modal ref={modal} />
             <Menu ref={menu}>
+                <MenuItem field='import' text='删除数据表' onClick={(e,field,data)=>{
+                    deleteTable(data.text)
+                }}><span className='text-danger'>删除数据表</span></MenuItem>
+                <MenuItem field='none' step/>
                 <MenuItem field='import' text='导入数据' onClick={(e,field,data)=>{
-                    console.log(data)
-
                 }}>导入数据</MenuItem>
             </Menu>
         </div>

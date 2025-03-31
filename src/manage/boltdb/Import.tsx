@@ -35,7 +35,7 @@ export default function Import({data,table}:Props) {
     },[data])
 
     useEffect(()=>{
-        const tmp = table.split("|")
+        const tmp = table.split("_")
         setTableName(tmp[0])
         setDataName(tmp[1])
     },[table])
