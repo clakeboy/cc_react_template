@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build -c ./vite.main.config.ts",
     "preview": "vite preview",
-    "go-run": "go run ../main.go --debug --config=../dev.conf"
+    "go-run": "cd ../ && go run ./main.go --debug --config=./dev.conf"
   },
   "dependencies": {
     "@clake/react-bootstrap4": "^2.3.6",
