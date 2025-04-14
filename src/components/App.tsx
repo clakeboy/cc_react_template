@@ -5,6 +5,7 @@ import Loader from './Loader';
 import { GetQuery, GetModules, GetLang } from '../common/Funcs';
 import { useEffect, useState } from 'react';
 import Login from './Login';
+import Setup from './Setup'
 import '../assets/css/main.less';
 import '../assets/css/theme-dark.less'
 import { t, changeLanguage } from 'i18next';
@@ -72,6 +73,10 @@ export default function App() {
 
     let darkStore = Storage.get("theme-dark")
     const darkFlag = darkStore?JSON.parse(darkStore):false;
+
+    if (location.pathname === "/setup") {
+        return <Setup />
+    }
 
     if (!login) {
         return (
