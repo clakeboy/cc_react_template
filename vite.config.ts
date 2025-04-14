@@ -39,6 +39,8 @@ export default defineConfig({
     // outDir: '../publish/assets/html', //不打包前端发布
   },
   server: {
+    open: "manage.html",
+    host: '0.0.0.0',
     proxy: {
       '^/serv/.*': {
         target: 'http://localhost:12355',
