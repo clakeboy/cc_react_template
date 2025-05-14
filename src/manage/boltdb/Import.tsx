@@ -35,7 +35,7 @@ export default function Import({data,table}:Props) {
     },[data])
 
     useEffect(()=>{
-        const tmp = table.split("_")
+        const tmp = table.split("-")
         setTableName(tmp[0])
         setDataName(tmp[1])
     },[table])
@@ -105,9 +105,14 @@ export default function Import({data,table}:Props) {
             <span>{msg}</span>
         </div>
         <div>数据预览</div>
-        <Table headerTheme={Theme.primary} hover select={false} emptyText="选择数据导入" data={list}>
+        <Table headerTheme={Theme.primary} width="100%" hover select={false} emptyText="选择数据导入" data={list}>
             {headers.map((key)=>{
-                return <TableHeader key={key} text={key} field={key}></TableHeader>
+                return <TableHeader key={key} text={key} width="200px" field={key} onFormat={(val)=>{
+                    if (typeof val === 'object') {
+                        return JSON.stringify(val)
+                    }
+                    return val
+                }}/>
             })}
         </Table>
         <Modal ref={modal} center fade/>
