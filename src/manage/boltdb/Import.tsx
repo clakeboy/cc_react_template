@@ -92,10 +92,10 @@ export default function Import({data,table}:Props) {
     return <>
         <div className="comm-form">
             <Input placeholder="表名" data={tableName} width="200px" validate={{text:"表名必需填写",rule:/.+/}} onChange={(val)=>{
-                setTableName(tableName)
+                setTableName(val)
             }}/>
             <Input placeholder="数据结构名" data={dataName} width="200px" validate={{text:"数据结构名必需填写",rule:/.+/}} onChange={(val)=>{
-                setDataName(dataName)
+                setDataName(val)
             }}/>
         </div>
         <div className="mb-2">
