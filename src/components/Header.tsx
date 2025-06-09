@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CommonProps, UserData } from '../common/Common';
 import '../assets/css/header.less';
 import '../assets/css/theme-switch.less';
-import { useLocation, useNavigationType } from 'react-router-dom';
+import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import Loader from './Loader';
 import { GetModules } from '../common/Funcs';
 import { t } from 'i18next';
@@ -24,12 +24,14 @@ export default function Header(props: HeaderProp) {
     const [avatar, setAvatar] = useState('');
     const [dark, setDark] = useState(props.dark);
     const naviType = useNavigationType();
-    let location = useLocation();
-    let modal = useRef<CKModal>(null);
+    const location = useLocation();
+    const navi = useNavigate()
+    const modal = useRef<CKModal>(null);
     useEffect(() => {
         // @ts-ignore
         const avatar = multiavatar(props.user?.name);
         setAvatar(avatar);
+        setBack(naviType === 'PUSH');
     }, [location]);
 
     function changeDarkHandler(flag: boolean) {
@@ -53,7 +55,7 @@ export default function Header(props: HeaderProp) {
                 {back ? (
                     <div
                         onClick={() => {
-                            props.router.History(-1);
+                            navi(-1);
                         }}
                         className="page-title back">
                         <Icon icon="angle-left" />
