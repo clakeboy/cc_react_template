@@ -57,7 +57,7 @@ export default function(props:Props) {
 
     function editorLoad(e:Ace.Editor) {
         editor.current = e;
-        let statusbar = new StatusBar(e,document.getElementById("status_bar"))
+        let statusbar = new StatusBar(e,document.getElementById("status_bar") as HTMLElement)
     }
 
     function save() {

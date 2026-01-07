@@ -42,8 +42,8 @@ export default defineConfig({
     open: "manage.html",
     host: '0.0.0.0',
     proxy: {
-      '^/serv/.*': {
-        target: 'http://localhost:12355',
+      '^/serv|front/.*': {
+        target: 'http://localhost:12333',
         changeOrigin: true
       }
     }

@@ -70,7 +70,7 @@ export default function List(props: any): any {
             }
         });
     }
-
+    console.log('init menu')
     return (
         <Card>
             <div className="mb-2">
@@ -87,7 +87,7 @@ export default function List(props: any): any {
                 </Button>
                 <Button className='ms-1' onClick={()=>{
                     reIndex()
-                }} icon='table' tip='重建索引' theme={Theme.dark}/>
+                }} icon='wrench' tip='重建索引' theme={Theme.link}/>
                 <Button className='float-end' theme={Theme.success} onClick={()=>{
                     modal.current?.view({
                         title:"添加菜单",
@@ -109,25 +109,26 @@ export default function List(props: any): any {
             </div>
             
             <div>
-                <Table headerTheme={Theme.primary} loading={loading} hover select={false} tree emptyText="没有数据" data={list}>
-                <TableHeader field="id" text="ID" />
-                    <TableHeader field="sort" text="排序" />
-                    <TableHeader field="icon" text="图标" align='center' onFormat={(val)=>{
+                <Table headerTheme={Theme.primary} loading={loading} hover select={false} width='100%' tree emptyText="没有数据" data={list}>
+                    <TableHeader field="id" text="ID" width='100px'/>
+                    <TableHeader field="sort" text="排序" width='100px'/>
+                    <TableHeader field="icon" text="图标" align='center' width='100px' onFormat={(val)=>{
                         if (!val) return "-"
                         return <Icon icon={val}/>
                     }} />
-                    <TableHeader field="text" text="菜单文字" tree/>
-                    <TableHeader field="name" text="菜单名"/>
-                    <TableHeader field='link' text="跳转地址" onFormat={(val)=>{
+                    <TableHeader field="text" text="菜单文字" tree width='100px'/>
+                    <TableHeader field="name" text="菜单名" width='100px'/>
+                    <TableHeader field='link' text="跳转地址" width='100px' onFormat={(val)=>{
                         if (!val) return <span className='badge bg-secondary'>无</span>
                         return val
                     }}/>
-                    <TableHeader field="step" text="提示栏" align='center' onFormat={(val)=>{
+                    <TableHeader field="step" text="提示栏" align='center' width='100px' onFormat={(val)=>{
                         return val?<Icon icon="check-square"/>:''
                     }}/>
                     <TableHeader
                         field="created_date"
                         text="创建时间"
+                        width='100px'
                         onFormat={(val) => {
                             if (!val) return '';
                             return dayjs.unix(val).format('YYYY-MM-DD HH:mm:ss');
@@ -136,12 +137,13 @@ export default function List(props: any): any {
                     <Table.Header
                         field="modified_date"
                         text="修改时间"
+                        width='100px'
                         onFormat={(val) => {
                             if (!val) return <div className='badge bg-secondary'>无</div>;
                             return dayjs.unix(val).format('YYYY-MM-DD HH:mm:ss');
                         }}
                     />
-                    <TableHeader field="modified_date" text="操作" align='center' onFormat={(val,row)=>{
+                    <TableHeader afterHold field="" text="操作" align='center' width='100px' onFormat={(val,row)=>{
                         return <>
                         <Button onClick={()=>{
                             modal.current?.view({

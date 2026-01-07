@@ -21,6 +21,8 @@ import '../../assets/css/boltdb.less'
 import { JsonView, allExpanded, darkStyles, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 import Edit from './Edit';
+import Export from './Export';
+import BackupList from './BackupList';
 import { GetModules } from '../../common/Funcs';
 import download from "downloadjs"
 
@@ -244,6 +246,15 @@ export default function List(props: any): any {
         });
     }
 
+    function openBackupList() {
+        modal.current?.view({
+            header:true,
+            title:"备份文件列表",
+            width:'80%',
+            content: <BackupList/>,
+        })
+    }
+
     function deleteData() {
         let list = table.current?.getSelectRows()
         if (list && list.length > 0) {
@@ -291,6 +302,12 @@ export default function List(props: any): any {
                 <div className="filter comm-form">
                     <Button size='sm' icon='list' theme={Theme.success} tip='下载数据库文件' onClick={()=>{
                         downloadDb()
+                    }}></Button>
+                    <Button size='sm' icon='folder-open' theme={Theme.info} tip='查看备份列表' onClick={()=>{
+                        openBackupList()
+                    }}></Button>
+                    <Button size='sm' icon='plus' theme={Theme.primary} tip='导入数据' onClick={()=>{
+                        document.getElementById('bolt-main')?.dispatchEvent(new DragEvent('dragover', { bubbles: true }));
                     }}></Button>
                     <Button size='sm' className='ms-auto' icon='sync-alt' tip='刷新列表' onClick={()=>{
                         getMainTables()
@@ -383,7 +400,7 @@ export default function List(props: any): any {
                                 return <span className='text-break'>{val}</span>
                             }}/>
                         }):undefined}
-                        <Table.Header afterHold align='center' onFormat={(val,row)=>{
+                        <Table.Header afterHold align='center' field='' onFormat={(val,row)=>{
                             return <Button size='sm' icon='search' outline onClick={()=>{
                                 edit(row)
                             }}>修改</Button>
