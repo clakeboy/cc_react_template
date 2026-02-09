@@ -23,6 +23,7 @@ import 'react-json-view-lite/dist/index.css';
 import Edit from './Edit';
 import Export from './Export';
 import BackupList from './BackupList';
+import BackupTaskList from './BackupTaskList';
 import { GetModules } from '../../common/Funcs';
 import download from "downloadjs"
 
@@ -228,22 +229,23 @@ export default function List(props: any): any {
         })
     }
 
-    function downloadDb() {
-        modal.current?.loading("正在下载文件")
-        return fetch("/serv/bolt/backup_download", {
-            method: 'POST',
-            mode: "cors",
-        }).then(function(resp) {
-            if (!resp.ok) {
-                throw new Error(resp.statusText);
+    function startBackup() {
+        Fetch("/serv/bolt/backup_current", {}, (res: Response) => {
+            if (res.status) {
+                modal.current?.alert("备份任务已提交，请稍后查看备份任务列表")
+            } else {
+                modal.current?.alert("备份任务提交失败：" + res.msg)
             }
-            return resp.blob();
-        }).then(function(blob) {
-            download(blob,"backup.zip");
-            modal.current?.close();
-        }).catch(function(err) {
-            modal.current?.alert("下载出错:"+err);
-        });
+        })
+    }
+
+    function openBackupTaskList() {
+        modal.current?.view({
+            header: true,
+            title: "备份任务列表",
+            width: '80%',
+            content: <BackupTaskList />,
+        })
     }
 
     function openBackupList() {
@@ -294,20 +296,62 @@ export default function List(props: any): any {
         })
     }
 
+    function viewStats() {
+        Fetch('/serv/bolt/stats', {}, (res: Response) => {
+            if (res.status) {
+                const stats = res.data;
+                const txStats = stats.tx_stats || {};
+                const tableData = [
+                    { name: 'Free Pages (空闲页面)', value: stats.free_page_n || 0 },
+                    { name: 'Pending Pages (待处理页面)', value: stats.pending_page_n || 0 },
+                    { name: 'Free Alloc (空闲分配)', value: stats.free_alloc || 0 },
+                    { name: 'Freelist In Use (空闲列表使用)', value: stats.freelist_in_use || 0 },
+                    { name: 'Total TX (事务总数)', value: stats.tx_n || 0 },
+                    { name: 'Open TX (打开事务)', value: stats.open_tx_n || 0 },
+                    { name: 'TX Page Count (事务页面数)', value: txStats.page_count || 0 },
+                    { name: 'TX Page Alloc (事务页面分配)', value: txStats.page_alloc || 0 },
+                    { name: 'Cursor Count (游标数)', value: txStats.cursor_count || 0 },
+                    { name: 'Node Count (节点数)', value: txStats.node_count || 0 },
+                    { name: 'Node Deref (节点解引用)', value: txStats.node_deref || 0 },
+                    { name: 'Rebalance (再平衡)', value: txStats.rebalance || 0 },
+                    { name: 'Split (分裂)', value: txStats.split || 0 },
+                    { name: 'Spill (溢出)', value: txStats.spill || 0 },
+                    { name: 'Write (写入)', value: txStats.write || 0 },
+                ];
+                modal.current?.view({
+                    title:"BoltDB 状态统计 (Database Stats)",
+                    width:'600px',
+                    content:(
+                        <Table headerTheme={Theme.primary} sm headerAlign='center' data={tableData}>
+                            <Table.Header align='left' field='name' text='统计项 (Statistic)' />
+                            <Table.Header align='right' field='value' text='数值 (Value)' />
+                        </Table>
+                    ),
+                    shadowClose:true,
+                })
+            } else {
+                modal.current?.alert('获取状态信息出错：' + res.msg);
+            }
+        });
+    }
+
     return (
         <div className='boltdb h-100' id='bolt-main' onDragOver={(e)=>{
             e.preventDefault();
         }}>
             <div className='boltdb-tools'>
                 <div className="filter comm-form">
-                    <Button size='sm' icon='list' theme={Theme.success} tip='下载数据库文件' onClick={()=>{
-                        downloadDb()
+                    <Button size='sm' icon='tasks' theme={Theme.info} tip='查看备份任务列表' onClick={()=>{
+                        openBackupTaskList()
                     }}></Button>
-                    <Button size='sm' icon='folder-open' theme={Theme.info} tip='查看备份列表' onClick={()=>{
+                    <Button size='sm' icon='folder-open' theme={Theme.secondary} tip='查看备份文件列表' onClick={()=>{
                         openBackupList()
                     }}></Button>
                     <Button size='sm' icon='plus' theme={Theme.primary} tip='导入数据' onClick={()=>{
                         document.getElementById('bolt-main')?.dispatchEvent(new DragEvent('dragover', { bubbles: true }));
+                    }}></Button>
+                    <Button size='sm' icon='chart-bar' theme={Theme.warning} tip='查看数据库状态' onClick={()=>{
+                        viewStats()
                     }}></Button>
                     <Button size='sm' className='ms-auto' icon='sync-alt' tip='刷新列表' onClick={()=>{
                         getMainTables()

@@ -68,7 +68,7 @@ export default function App() {
 
     function changeTitle(title: string) {
         setTitle(title);
-        document.title = 'BTM - '+title;
+        document.title = 'CCTP - '+title;
     }
 
     let darkStore = Storage.get("theme-dark")
