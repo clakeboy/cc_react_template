@@ -1,0 +1,159 @@
+// 主题选择器样式
+.theme-selector-btn {
+  &:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.theme-selector-panel {
+  .theme-panel-content {
+    min-width: 200px;
+    padding: 8px;
+    background-color: var(--theme-bg, #fff);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .theme-panel-header {
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--theme-text, #212529);
+    border-bottom: 1px solid var(--theme-border, #dee2e6);
+    margin-bottom: 8px;
+  }
+
+  .theme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .theme-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: var(--theme-hover, #e9ecef);
+    }
+
+    &.active {
+      background-color: var(--theme-hover, #e9ecef);
+    }
+
+    .theme-icon-wrapper {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 0.875rem;
+      }
+    }
+
+    .theme-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+
+      .theme-name {
+        font-size: 0.875rem;
+        color: var(--theme-text, #212529);
+        font-weight: 500;
+      }
+
+      .theme-color-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .theme-check {
+      i {
+        font-size: 0.75rem;
+      }
+    }
+  }
+}
+
+// 暗黑主题适配
+.theme-dark {
+  .theme-selector-panel {
+    .theme-panel-content {
+      background-color: #1a1a1a;
+      border: 1px solid #333;
+    }
+
+    .theme-panel-header {
+      color: #fff;
+      border-bottom-color: #333;
+    }
+
+    .theme-item {
+      &:hover {
+        background-color: #2f3236;
+      }
+
+      &.active {
+        background-color: #2f3236;
+      }
+
+      .theme-info {
+        .theme-name {
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+// 紫色主题适配
+.theme-purple {
+  .theme-selector-panel {
+    .theme-panel-content {
+      background-color: #1a1a2e;
+      border: 1px solid #4a148c;
+    }
+
+    .theme-panel-header {
+      color: #e0e0e0;
+      border-bottom-color: #4a148c;
+    }
+
+    .theme-item {
+      &:hover {
+        background-color: #311b92;
+      }
+
+      &.active {
+        background-color: #311b92;
+      }
+
+      .theme-info {
+        .theme-name {
+          color: #e0e0e0;
+        }
+      }
+    }
+  }
+}

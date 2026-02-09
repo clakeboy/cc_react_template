@@ -3,11 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { CommonProps, UserData } from '../common/Common';
 import '../assets/css/header.less';
 import '../assets/css/theme-switch.less';
+import '../assets/css/theme-selector.less';
 import { useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import Loader from './Loader';
 import { GetModules } from '../common/Funcs';
 import { t } from 'i18next';
-import Storage from '../common/Storage';
+import ThemeSelector from './ThemeSelector';
+import { ThemeType } from '../common/Theme';
 
 function getClasses(): string {
     let base = 'd-flex align-items-center main-header';
@@ -17,12 +19,12 @@ function getClasses(): string {
 interface HeaderProp extends CommonProps {
     title: string;
     user?: any;
+    theme?: ThemeType;
 }
 
 export default function Header(props: HeaderProp) {
     const [back, setBack] = useState(false);
     const [avatar, setAvatar] = useState('');
-    const [dark, setDark] = useState(props.dark);
     const naviType = useNavigationType();
     const location = useLocation();
     const navi = useNavigate()
@@ -34,12 +36,6 @@ export default function Header(props: HeaderProp) {
         setBack(naviType === 'PUSH');
     }, [location]);
 
-    function changeDarkHandler(flag: boolean) {
-        if (typeof props.setDark === 'function') {
-            props.setDark(flag);
-        }
-        setDark(flag);
-    }
     return (
         <div className="d-flex align-items-center main-header">
             <div className="ck-header-left d-none d-sm-block">
@@ -115,22 +111,11 @@ export default function Header(props: HeaderProp) {
                     </div>
                 </div>
 
-                <div className="float-end px-3 block justify-content-center align-items-center">
-                    <div>
-                        <div
-                            className="theme-switch"
-                            onClick={() => {
-                                changeDarkHandler(!dark);
-                            }}>
-                            <div className={'circle ' + (dark ? 'right' : '')}>
-                                <Icon icon={dark ? 'moon' : 'sun'} />
-                            </div>
-                        </div>
-                    </div>
+                <div className="float-end px-3 d-flex align-items-center" style={{ height: '60px' }}>
+                    <ThemeSelector setTheme={props.setTheme} />
                 </div>
             </div>
             <Modal ref={modal} />
-            {/* <Modal ref={c => this.modal = c}/> */}
         </div>
     );
 }

@@ -4,7 +4,9 @@
 import React from 'react';
 
 import '../assets/css/Login.less';
-import '../assets/css/theme-switch.less'
+import '../assets/css/theme-switch.less';
+import '../assets/css/theme-selector.less';
+import '../assets/css/themes.less';
 import {
     Icon,
     Input,
@@ -22,6 +24,7 @@ import { GoCaptcha, Dot } from "./GoCaptcha";
 import { t } from 'i18next';
 import { GetLang } from '../common/Funcs';
 import { UserData } from '../common/Common';
+import { ThemeType, themes, getThemeList, setTheme, getCurrentTheme } from '../common/Theme';
 
 interface State {
     page_data: {
@@ -35,15 +38,18 @@ interface State {
     captStatus: string
     captAutoRefreshCount: number
     captKey: string
-    dark: boolean
+    theme: ThemeType
     lang: string
+    showThemePanel: boolean
 }
 
 class Login extends React.Component<any, State> {
     user: UserData
     modal: CKModal
+    themeBtnRef: React.RefObject<HTMLDivElement>
     constructor(props: any) {
         super(props);
+        this.themeBtnRef = React.createRef();
         this.state = {
             page_data: {
                 user_name: '',
@@ -55,8 +61,9 @@ class Login extends React.Component<any, State> {
             captStatus: 'default',
             captAutoRefreshCount: 0,
             captKey: '',
-            dark:false,
-            lang:this.props.lang??GetLang()
+            theme: props.theme || getCurrentTheme(),
+            lang: this.props.lang ?? GetLang(),
+            showThemePanel: false
         };
 
         let login_name = Storage.get('login_name');
@@ -87,7 +94,7 @@ class Login extends React.Component<any, State> {
 
     setLogin(user: any) {
         this.user = user;
-        this.props.setLogin(true,user);
+        this.props.setLogin(true, user);
     }
 
     changeHandler(name: string) {
@@ -100,12 +107,14 @@ class Login extends React.Component<any, State> {
         };
     }
 
-    changeDarkHandler(flag:boolean) {
-        if (typeof this.props.changeDark === 'function') {
-            this.props.changeDark(flag)
+    changeThemeHandler(theme: ThemeType) {
+        if (typeof this.props.setTheme === 'function') {
+            this.props.setTheme(theme)
         }
+        setTheme(theme);
         this.setState({
-            dark: flag
+            theme: theme,
+            showThemePanel: false
         })
     }
 
@@ -217,7 +226,9 @@ class Login extends React.Component<any, State> {
     }
 
     renderLogin() {
-        const { captStatus } = this.state;
+        const { captStatus, theme } = this.state;
+        const currentConfig = themes[theme];
+        
         return (
             <div className='ck-login'>
                 <div className="ck-login-window shadow">
@@ -251,7 +262,8 @@ class Login extends React.Component<any, State> {
     }
 
     renderLanguages() {
-        const right = this.state.dark?'right':'';
+        const { theme, showThemePanel } = this.state;
+        const currentConfig = themes[theme];
 
         return (
             <div className='language comm-form'>
@@ -266,13 +278,111 @@ class Login extends React.Component<any, State> {
                     <CDropdown.Value value="zh" text="中文" active={this.state.lang === 'zh'}/>
                     <CDropdown.Value value="en" text="English" active={this.state.lang === 'en'}/>
                 </CDropdown>
-                <div className="theme-switch" onClick={()=>{
-                    this.changeDarkHandler(!this.state.dark)
-                }}>
-                    <div className={"circle "+right}>
-                        <Icon icon={this.state.dark?"moon":"sun"}/>
-                    </div>
+                
+                {/* 主题选择器 */}
+                <div 
+                    ref={this.themeBtnRef}
+                    className="login-theme-selector"
+                    onClick={() => this.setState({ showThemePanel: !showThemePanel })}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '4px 10px',
+                        borderRadius: '16px',
+                        backgroundColor: currentConfig.color + '20',
+                        border: `1px solid ${currentConfig.color}40`,
+                        cursor: 'pointer',
+                        marginLeft: '8px',
+                        transition: 'all 0.2s ease'
+                    }}
+                >
+                    <Icon icon={currentConfig.icon} style={{ color: currentConfig.color, fontSize: '0.875rem' }} />
+                    <span style={{ fontSize: '0.75rem', color: currentConfig.color, fontWeight: 500 }}>
+                        {currentConfig.name}
+                    </span>
+                    <Icon icon="caret-down" style={{ fontSize: '0.625rem', color: currentConfig.color }} />
                 </div>
+
+                {/* 主题下拉面板 */}
+                {showThemePanel && (
+                    <div 
+                        className="login-theme-panel"
+                        style={{
+                            position: 'absolute',
+                            bottom: '50px',
+                            right: '10px',
+                            backgroundColor: '#fff',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                            padding: '8px',
+                            minWidth: '160px',
+                            zIndex: 1000
+                        }}
+                    >
+                        <div style={{ 
+                            padding: '6px 10px', 
+                            fontWeight: 600, 
+                            fontSize: '0.75rem',
+                            color: '#666',
+                            borderBottom: '1px solid #eee',
+                            marginBottom: '6px'
+                        }}>
+                            <Icon icon="palette" style={{ marginRight: '6px' }} />
+                            选择主题
+                        </div>
+                        {getThemeList().map(({ key, config }) => (
+                            <div
+                                key={key}
+                                onClick={() => this.changeThemeHandler(key)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '10px',
+                                    padding: '8px 10px',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    backgroundColor: theme === key ? config.color + '15' : 'transparent',
+                                    transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (theme !== key) {
+                                        e.currentTarget.style.backgroundColor = '#f5f5f5';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (theme !== key) {
+                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                    }
+                                }}
+                            >
+                                <div style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: config.color + '20',
+                                    border: theme === key ? `2px solid ${config.color}` : '2px solid transparent'
+                                }}>
+                                    <Icon icon={config.icon} style={{ color: config.color, fontSize: '0.75rem' }} />
+                                </div>
+                                <span style={{ 
+                                    fontSize: '0.8125rem', 
+                                    color: theme === key ? config.color : '#333',
+                                    fontWeight: theme === key ? 600 : 400,
+                                    flex: 1
+                                }}>
+                                    {config.name}
+                                </span>
+                                {theme === key && (
+                                    <Icon icon="check" style={{ color: config.color, fontSize: '0.75rem' }} />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         )
     }

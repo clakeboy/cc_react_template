@@ -7,42 +7,25 @@ import { useEffect, useState } from 'react';
 import Login from './Login';
 import Setup from './Setup'
 import '../assets/css/main.less';
-import '../assets/css/theme-dark.less'
+import '../assets/css/theme-dark.less';
+import '../assets/css/themes.less';
 import { t, changeLanguage } from 'i18next';
 import Left from './Left';
 import Fetch from '../common/Fetch';
 import Storage from '../common/Storage';
-
-function changeDark(flag: boolean) {
-    const main = document.body
-    const html = document.querySelector('html')
-    if (flag) {
-        if (!main?.classList.contains('theme-dark')) {
-            main?.classList.add('theme-dark');
-        }
-        if (html) 
-            html.dataset.bsTheme = 'dark';
-    } else {
-        main?.classList.remove('theme-dark');
-        if (html)
-            html.dataset.bsTheme = 'light';
-    }
-    Storage.set("theme-dark",flag)
-}
+import { initTheme, ThemeType, setTheme } from '../common/Theme';
 
 export default function App() {
     const [login, setLogin] = useState(false);
     const [lang, setLang] = useState(GetLang());
     const [user, setUser] = useState(undefined);
     const [title, setTitle] = useState('');
+    const [currentTheme, setCurrentTheme] = useState<ThemeType>('light');
     const location = useLocation();
     
     useEffect(() => {
-        // console.log('location change', location);
-        let flag = Storage.get("theme-dark")
-        if (flag) {
-            changeDark(JSON.parse(flag))
-        }
+        // 初始化主题
+        initTheme();
     }, []);
 
     function changeLang(lang: string) {
@@ -71,8 +54,10 @@ export default function App() {
         document.title = 'CCTP - '+title;
     }
 
-    let darkStore = Storage.get("theme-dark")
-    const darkFlag = darkStore?JSON.parse(darkStore):false;
+    function handleThemeChange(theme: ThemeType) {
+        setTheme(theme);
+        setCurrentTheme(theme);
+    }
 
     if (location.pathname === "/setup") {
         return <Setup />
@@ -81,7 +66,8 @@ export default function App() {
     if (!login) {
         return (
             <Login
-                changeDark={changeDark}
+                theme={currentTheme}
+                setTheme={handleThemeChange}
                 lang={lang}
                 query={GetQuery(location.search)}
                 changeLang={changeLang}
@@ -95,11 +81,11 @@ export default function App() {
                 title={title}
                 lang={lang}
                 user={user}
-                dark={darkFlag}
+                theme={currentTheme}
                 setTitle={changeTitle}
                 setLang={changeLang}
                 setLogin={changeLogin}
-                setDark={changeDark}
+                setTheme={handleThemeChange}
             />
             <div className="d-flex flex-grow-1" style={{ height: 'calc(100% - 60px)' }}>
                 <div className="ck-left d-none d-sm-block">
@@ -112,7 +98,7 @@ export default function App() {
                         import={GetModules}
                         setTitle={changeTitle}
                         setLang={changeLang}
-                        setDark={changeDark}
+                        setTheme={handleThemeChange}
                     />
                 </div>
             </div>
