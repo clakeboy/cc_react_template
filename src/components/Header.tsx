@@ -47,22 +47,26 @@ export default function Header(props: HeaderProp) {
             <div className="d-block d-sm-none p-3">
                 <Icon className="icon" icon="bars" />
             </div>
-            <div className="ck-header-right flex-grow-1">
+            <div className="ck-header-right d-flex flex-grow-1">
                 {back ? (
                     <div
                         onClick={() => {
                             navi(-1);
                         }}
-                        className="page-title back">
+                        className="back d-flex px-3 fs-3 justify-content-center align-items-center">
                         <Icon icon="angle-left" />
                     </div>
                 ) : null}
-                <div className="page-title">{props.title}</div>
-
-                <div className="float-end px-3 user-info">
+                <div className="page-title flex-grow-1">
+                    <span className='text'>{props.title}</span>
+                </div>
+                <div className="px-3 d-none d-sm-flex align-items-center" style={{ height: '60px' }}>
+                    <ThemeSelector setTheme={props.setTheme} />
+                </div>
+                <div className="px-3 user-info">
                     <div className="h-100 d-flex align-items-center align-content-center" id="menu-avatar">
-                        <div className="avatar me-2" dangerouslySetInnerHTML={{ __html: avatar }} />
-                        <div>{props.user?.name}</div>
+                        <div className="avatar" dangerouslySetInnerHTML={{ __html: avatar }} />
+                        <div className="ms-2 d-none d-sm-block">{props.user?.name}</div>
                         <DropPanel className="bg-white" borderColor="#0d6efd" selector="#menu-avatar">
                             <div className="panel">
                                 <div className="head p-3 text-center">
@@ -109,10 +113,6 @@ export default function Header(props: HeaderProp) {
                             </div>
                         </DropPanel>
                     </div>
-                </div>
-
-                <div className="float-end px-3 d-flex align-items-center" style={{ height: '60px' }}>
-                    <ThemeSelector setTheme={props.setTheme} />
                 </div>
             </div>
             <Modal ref={modal} />
