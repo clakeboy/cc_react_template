@@ -6,11 +6,12 @@ import { Response } from "../../common/Common"
 interface Props {
     data:any[] //要导入的数据
     table:string //当前打开的表名
+    db?: string //当前选择的数据库文件
 }
 
 const importNum = 100
 
-export default function Import({data,table}:Props) {
+export default function Import({data,table,db}:Props) {
     const [list,setList] = useState<any[]>([])
     const [headers,setHeaders] = useState<string[]>([])
     const [loading,setLoading] = useState<boolean>(false)
@@ -59,7 +60,7 @@ export default function Import({data,table}:Props) {
             setMsg("导入完成")
             return
         }
-        Fetch("/serv/bolt/import",{table:table,data:pageData},(res:Response)=>{
+        Fetch("/serv/bolt/import",{db:db,table:table,data:pageData},(res:Response)=>{
             if (res.status) {
                 startImport(page.current+1)
             } else {

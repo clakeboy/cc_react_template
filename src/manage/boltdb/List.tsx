@@ -67,6 +67,8 @@ function buildCondition(cond: conditions): Condtion[] {
 }
 
 export default function List(props: any): any {
+    const [dbList, setDbList] = useState<{name:string, path:string}[]>([]);
+    const [selectedDb, setSelectedDb] = useState<string>('sys.db');
     const [database, setDatabase] = useState([]);
     const [list, setList] = useState([]);
     const [page, setPage] = useState(1);
@@ -85,7 +87,7 @@ export default function List(props: any): any {
     let tableName = useRef<string>('');
     let table = useRef<Table>(null);
     useEffect(() => {
-        getMainTables();
+        getDbList();
         props.setTitle && props.setTitle('数据管理')
         document.getElementById("bolt-main")?.addEventListener("drop",drophandler,false)
         return ()=>{
@@ -110,13 +112,44 @@ export default function List(props: any): any {
         }
     },[header])
 
-    function getMainTables() {
+    function getDbList() {
+        Fetch('/serv/bolt/db_list', {}, (res: Response) => {
+            if (res.status) {
+                setDbList(res.data);
+                const hasSys = res.data.some((item: any) => item.name === 'sys.db');
+                if (hasSys) {
+                    setSelectedDb('sys.db');
+                    getMainTables('sys.db');
+                } else if (res.data.length > 0) {
+                    setSelectedDb(res.data[0].name);
+                    getMainTables(res.data[0].name);
+                }
+            } else {
+                modal.current?.alert('数据获取出错：' + res.msg);
+            }
+        });
+    }
+
+    function handleDbChange(dbName: string) {
+        setSelectedDb(dbName);
+        setDatabase([]);
+        setList([]);
+        setHeader([]);
+        setCount(0);
+        setFilterColumn(undefined);
+        setFilterValue('');
+        tableName.current = '';
+        getMainTables(dbName);
+    }
+
+    function getMainTables(dbName: string = selectedDb) {
         setLoading(true)
-        Fetch('/serv/bolt/databases', {}, (res: Response) => {
+        Fetch('/serv/bolt/databases', { db: dbName }, (res: Response) => {
             setLoading(false)
             if (res.status) {
                 setDatabase(res.data);
             } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) return;
                 modal.current?.alert('数据获取出错：' + res.msg);
             }
         });
@@ -136,7 +169,7 @@ export default function List(props: any): any {
                 index: filterIndex,
             })
         }
-        Fetch('/serv/bolt/query', {table:name,page:page,number:50,query:conds}, (res: Response) => {
+        Fetch('/serv/bolt/query', {db:selectedDb, table:name,page:page,number:50,query:conds}, (res: Response) => {
             setLoading(false)
             if (res.status) {
                 setPage(page)
@@ -144,6 +177,7 @@ export default function List(props: any): any {
                 setHeader(res.data.header)
                 setList(res.data.list)
             } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) return;
                 modal.current?.alert('数据获取出错：' + res.msg);
             }
         });
@@ -170,7 +204,7 @@ export default function List(props: any): any {
                 header:true,
                 title:"数据导入",
                 width:'80%',
-                content: <Loader loadPath="/boltdb/import" table={file.name.split(".")[0]} data={list} import={GetModules}/>,
+                content: <Loader loadPath="/boltdb/import" db={selectedDb} table={file.name.split(".")[0]} data={list} import={GetModules}/>,
             })
         } catch(e) {
 
@@ -192,7 +226,7 @@ export default function List(props: any): any {
                 index: filterIndex,
             })
         }
-        Fetch("/serv/bolt/export",{table:name,page:page,number:1000,query:conds},(res:Response)=>{
+        Fetch("/serv/bolt/export",{db:selectedDb, table:name,page:page,number:1000,query:conds},(res:Response)=>{
             if (res.status) {
                 modal.current?.alert("导出任务已提交，请稍后查看导出任务列表")
             } else {
@@ -224,7 +258,7 @@ export default function List(props: any): any {
             header:true,
             title:"修改数据",
             width:'80%',
-            content:<Edit id={parseInt(row.id)} table={tableName.current} text={JSON.stringify(row,null,2)}/>,
+            content:<Edit db={selectedDb} id={parseInt(row.id)} table={tableName.current} text={JSON.stringify(row,null,2)}/>,
             // shadowClose:true,
         })
     }
@@ -266,7 +300,7 @@ export default function List(props: any): any {
             },(flag)=>{
                 if (flag) {
                     let ids = list?.map(item=>item.id)
-                    Fetch("/serv/bolt/delete",{table:tableName.current,id_list:ids},(res:Response)=>{
+                    Fetch("/serv/bolt/delete",{db:selectedDb, table:tableName.current,id_list:ids},(res:Response)=>{
                         if (res.status) {
                             getTableData(tableName.current,page,[])
                         } else {
@@ -285,7 +319,7 @@ export default function List(props: any): any {
             content:"确定删除这个数据表？删除后，数据将无法恢复！"
         },(flag)=>{
             if (flag) {
-                Fetch('/serv/bolt/delete_bucket', { name: tableName }, (res: Response) => {
+                Fetch('/serv/bolt/delete_bucket', { db: selectedDb, name: tableName }, (res: Response) => {
                     if (res.status) {
                         getMainTables();
                     } else {
@@ -297,7 +331,7 @@ export default function List(props: any): any {
     }
 
     function viewStats() {
-        Fetch('/serv/bolt/stats', {}, (res: Response) => {
+        Fetch('/serv/bolt/stats', { db: selectedDb }, (res: Response) => {
             if (res.status) {
                 const stats = res.data;
                 const txStats = stats.tx_stats || {};
@@ -392,26 +426,38 @@ export default function List(props: any): any {
                 </div>
             </div>
             <div className='boltdb-main'>
-                <div className='db-list'>
-                    <Tree width='300px' data={database} onMenu={(e,data,id)=>{
-                        e.preventDefault()
-                        // console.log(data,id)
-                        menu.current?.show({evt:e,type:"mouse",data:data})
-                    }} onClick={(e,data,id)=>{
-                        if (data.children) {
-                            const idxList:string[] = [];
-                            data.children.forEach((item:any)=>{
-                                const text:string = item.text
-                                if (text.indexOf('__storm_index_') !== -1) {
-                                    idxList.push(Hump2Under(text.substring(14)))
-                                }
-                            })
-                            setIdxList(idxList)
-                        }
-                        getTableData(data.key,1)
-                        setFilterColumn(undefined)
-                        setFilterValue('')
-                    }}/>
+                <div className='db-list d-flex flex-column h-100'>
+                    <div className="p-2 border-bottom">
+                        <ComboBox showRows={10} header data={dbList} size='sm' placeholder='请选择数据库文件' width='500px' value={selectedDb} searchColumn='name' onChange={(val,row)=>{
+                            if (row) {
+                                handleDbChange(row.name);
+                            }
+                        }}>
+                            <ComboBox.Column field='name' text='数据库文件' width='200px'/>
+                            <ComboBox.Column field='path' text='数据库路径' width='300px'/>
+                        </ComboBox>
+                    </div>
+                    <div className="flex-grow-1 overflow-auto">
+                        <Tree width='300px' data={database} onMenu={(e,data,id)=>{
+                            e.preventDefault()
+                            // console.log(data,id)
+                            menu.current?.show({evt:e,type:"mouse",data:data})
+                        }} onClick={(e,data,id)=>{
+                            if (data.children) {
+                                const idxList:string[] = [];
+                                data.children.forEach((item:any)=>{
+                                    const text:string = item.text
+                                    if (text.indexOf('__storm_index_') !== -1) {
+                                        idxList.push(Hump2Under(text.substring(14)))
+                                    }
+                                })
+                                setIdxList(idxList)
+                            }
+                            getTableData(data.key,1)
+                            setFilterColumn(undefined)
+                            setFilterValue('')
+                        }}/>
+                    </div>
                 </div>
                 <div className='db-main'>
                     <Table ref={table} headerTheme={Theme.primary} sm headerAlign='center' loading={loading} striped={false} width='100%' height='100%' hover select emptyText="没有数据" data={list}>

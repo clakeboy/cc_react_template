@@ -5,7 +5,6 @@ import { viteExternalsPlugin } from 'vite-plugin-externals'
 import mpaPlugin from 'vite-plugin-mpa-plus'
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: './',
     plugins: [
         react(),
         checker({ typescript: true }),
@@ -42,6 +41,7 @@ export default defineConfig({
             }
         })
     ],
+    base: './', //这是默认分离前后端设置，如果要单一打包设置为 '/static'
     publicDir: './public',
     build: {
         assetsDir: 'assets',

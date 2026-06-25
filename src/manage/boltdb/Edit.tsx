@@ -19,6 +19,7 @@ interface Props {
     read?: boolean
     table: string
     id: number
+    db?: string
 }
 
 export default function(props:Props) {
@@ -74,6 +75,7 @@ export default function(props:Props) {
         }
         modal.current?.loading('保存数据中...')
         Fetch('/serv/bolt/save',{
+            db: props.db,
             id:props.id,
             table: props.table,
             data: JSON.stringify(obj)
