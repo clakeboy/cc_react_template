@@ -46,7 +46,7 @@ export default function MenuList(props:Props):any{
             <Button theme={Theme.success} onClick={selectHandler}>确定选择</Button>
         </div>
         <div>
-            <Table ref={table} loading={loading} serialNumber={false} select hover headerTheme={Theme.primary} emptyText="没有数据" data={menuList}>
+            <Table ref={table} loading={loading} serialNumber={false} select hover headerTheme={Theme.primary} tree emptyText="没有数据" data={menuList}>
                 <TableHeader field="sort" text="排序" />
                 <TableHeader field="icon" text="图标" align='center' onFormat={(val)=>{
                     if (!val) return "-"

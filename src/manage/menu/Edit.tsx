@@ -39,6 +39,7 @@ export default function Edit({id,callback,parent}:Props):any {
                 modal.current?.close();
                 if (res.status) {
                     setData(res.data)
+                    setIsTop(res.data.parent_id === 0)
                     setEdit(true)
                 } else {
                     modal.current?.alert('加载数据出错：'+res.msg,()=>{

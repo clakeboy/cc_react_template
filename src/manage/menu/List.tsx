@@ -54,6 +54,7 @@ export default function List(props: any): any {
             if (res.status) {
                 setList(res.data);
             } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) return;
                 modal.current?.alert('数据获取出错：' + res.msg);
             }
         });
@@ -66,10 +67,24 @@ export default function List(props: any): any {
             if (res.status) {
                 getData(1);
             } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) return;
                 modal.current?.alert('重建索引出错：' + res.msg);
             }
         });
     }
+
+    function exportMenu() {
+        setLoading(true)
+        Fetch('/serv/menu/export', { }, (res: Response) => {
+            setLoading(false)
+            if (res.status) {
+                modal.current?.alert('导出成功，数据已更新至 controllers/setup/menu.json');
+            } else {
+                modal.current?.alert('导出数据出错：' + res.msg);
+            }
+        });
+    }
+
     console.log('init menu')
     return (
         <Card>
@@ -88,6 +103,9 @@ export default function List(props: any): any {
                 <Button className='ms-1' onClick={()=>{
                     reIndex()
                 }} icon='wrench' tip='重建索引' theme={Theme.link}/>
+                <Button tip='导出菜单数据' className='ms-1' onClick={()=>{
+                    exportMenu()
+                }} icon='download' theme={Theme.warning}></Button>
                 <Button className='float-end' theme={Theme.success} onClick={()=>{
                     modal.current?.view({
                         title:"添加菜单",
@@ -101,8 +119,12 @@ export default function List(props: any): any {
             </div>
             <hr />
             <div className="comm-form">
-                <Form onChange={(field,val)=>{
-                    setConditions({...conditions,[field]:val})
+                <Form onChange={(field, val, row, combo) => {
+                    if (combo) {
+                        setConditions({ ...conditions, [field]: row ? row.value : val });
+                    } else {
+                        setConditions({ ...conditions, [field]: val });
+                    }
                 }}>
                     <Input field='name' placeholder="菜单名查找" data={conditions.name ?? ''} />
                 </Form>
@@ -110,15 +132,15 @@ export default function List(props: any): any {
             
             <div>
                 <Table headerTheme={Theme.primary} loading={loading} hover select={false} width='100%' tree emptyText="没有数据" data={list}>
-                    <TableHeader field="id" text="ID" width='100px'/>
-                    <TableHeader field="sort" text="排序" width='100px'/>
-                    <TableHeader field="icon" text="图标" align='center' width='100px' onFormat={(val)=>{
+                    <TableHeader field="id" text="ID" width='60px'/>
+                    <TableHeader field="sort" text="排序" width='60px'/>
+                    <TableHeader field="icon" text="图标" align='center' width='60px' onFormat={(val)=>{
                         if (!val) return "-"
                         return <Icon icon={val}/>
                     }} />
-                    <TableHeader field="text" text="菜单文字" tree width='100px'/>
-                    <TableHeader field="name" text="菜单名" width='100px'/>
-                    <TableHeader field='link' text="跳转地址" width='100px' onFormat={(val)=>{
+                    <TableHeader field="text" text="菜单文字" tree width='200px'/>
+                    <TableHeader field="name" text="菜单名" width='200px'/>
+                    <TableHeader field='link' text="跳转地址" width='200px' onFormat={(val)=>{
                         if (!val) return <span className='badge bg-secondary'>无</span>
                         return val
                     }}/>
