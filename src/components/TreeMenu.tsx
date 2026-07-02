@@ -42,18 +42,14 @@ class TreeMenu extends React.PureComponent<Props, State> {
     }
 
     componentDidMount() {
-        let list = document.querySelectorAll('.ck-tree-menu>.children')
-        list.forEach((elm)=>{
-            let height = this.getHeight(elm as HTMLElement);
-            (elm as HTMLElement).dataset['height'] = height
-        })
+        this.initChildrenStatus();
     }
 
     UNSAFE_componentWillReceiveProps(nextProp: Props) {
         if (this.state.data !== nextProp.data) {
             this.setState({
                 data: nextProp.data,
-            });
+            }, this.initChildrenStatus);
         }
     }
 
@@ -63,6 +59,32 @@ class TreeMenu extends React.PureComponent<Props, State> {
         return classNames(base, this.props.className);
     }
 
+    /**
+     * Cache submenu heights after render, and keep never-opened submenus collapsed.
+     */
+    initChildrenStatus = () => {
+        let root = document.getElementById(this.domId)
+        if (!root) {
+            return;
+        }
+
+        let list = root.querySelectorAll<HTMLElement>('.children')
+        list.forEach((elm)=>{
+            let isOpen = elm.dataset['status'] === 'open';
+            let height = this.getHeight(elm);
+            elm.dataset['height'] = height
+            if (isOpen) {
+                elm.style.height = height
+            } else {
+                elm.style.height = '0'
+                elm.dataset['status'] = 'close'
+            }
+        })
+    }
+
+    /**
+     * Read the natural submenu height, then restore collapsed inline height.
+     */
     getHeight(dom:HTMLElement):string {
         dom.style.height = "unset"
         let height = getComputedStyle(dom).height
