@@ -85,7 +85,6 @@ export default function List(props: any): any {
         });
     }
 
-    console.log('init menu')
     return (
         <Card>
             <div className="mb-2">

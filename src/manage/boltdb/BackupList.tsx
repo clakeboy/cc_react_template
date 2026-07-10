@@ -11,7 +11,11 @@ interface BackupFile {
     modify_time: number
 }
 
-export default function BackupList() {
+interface BackupListProps {
+    db?: string
+}
+
+export default function BackupList(props: BackupListProps) {
     const [list, setList] = useState<BackupFile[]>([])
     let modal = useRef<CKModal>(null)
 
@@ -25,7 +29,7 @@ export default function BackupList() {
 
     const backupCurrent = useCallback(() => {
         modal.current?.loading("正在备份数据库...")
-        Fetch("/serv/bolt/backup_current", {}, (res: Response) => {
+        Fetch("/serv/bolt/backup_current", { db: props.db }, (res: Response) => {
             if (res.status) {
                 modal.current?.close()
                 Fetch("/serv/bolt/backup_list", {}, (res: Response) => {

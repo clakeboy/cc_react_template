@@ -21,11 +21,11 @@ import '../../assets/css/boltdb.less'
 import { JsonView, allExpanded, darkStyles, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 import Edit from './Edit';
-import Export from './Export';
+import MetadataEdit from './MetadataEdit';
 import BackupList from './BackupList';
 import BackupTaskList from './BackupTaskList';
+import SqlConsole from './SqlConsole';
 import { GetModules } from '../../common/Funcs';
-import download from "downloadjs"
 
 interface conditions {
     name?: string;
@@ -41,6 +41,16 @@ interface Condition {
 interface Header {
     name:string
     type:string
+}
+
+interface DatabaseNode {
+    key: string
+    text: string
+    type?: string
+    from?: string
+    table?: string
+    sql?: boolean
+    children?: DatabaseNode[]
 }
 
 function Hump2Under(str:string):string {
@@ -65,16 +75,71 @@ function buildCondition(cond: conditions): Condtion[] {
     }
     return list;
 }
+// dragSplitHandler 已移至组件内部实现以方便访问 ref 和 DOM 元素
+
+function getSqlTableNames(nodes: DatabaseNode[]): string[] {
+    const names:string[] = [];
+    const walk = (items: DatabaseNode[]) => {
+        items.forEach((item) => {
+            if (item.table && !names.includes(item.table)) {
+                names.push(item.table);
+            }
+            if (item.children) {
+                walk(item.children);
+            }
+        });
+    };
+    walk(nodes);
+    names.sort();
+    return names;
+}
+
+// formatBoltCellValue 统一处理 BoltDB 表格单元格显示。
+// 普通 db.Set 可能保存字符串、数字、布尔、数组或对象，不能直接把原值作为 React child 渲染。
+function formatBoltCellValue(val:any, viewJson:(obj:any)=>void): any {
+    if (val === null || val === undefined || val === '') {
+        return '';
+    }
+    if (Array.isArray(val)) {
+        if (val.length === 0) {
+            return <span className='badge bg-secondary'>empty</span>
+        }
+        return <Button size='sm' onClick={()=>{
+            viewJson(val)
+        }}>查看对象</Button>
+    }
+    if (typeof val === 'object') {
+        if (Object.keys(val).length === 0) {
+            return <span className='badge bg-secondary'>empty</span>
+        }
+        return <Button size='sm' onClick={()=>{
+            viewJson(val)
+        }}>查看对象</Button>
+    }
+    if (typeof val === 'number' && val.toString().length === 10) {
+        return <>
+            {dayjs.unix(val).format('YYYY-MM-DD HH:mm:ss')}<br/>
+            <span className='text-primary'>{val}</span>
+        </>
+    }
+    const text = String(val);
+    if (text.length > 100) {
+        return <Button theme={Theme.link} className='text-break' onClick={()=>{
+            viewJson(text)
+        }}>{text.substring(0,100)} ...</Button>
+    }
+    return <span className='text-break'>{text}</span>
+}
 
 export default function List(props: any): any {
     const [dbList, setDbList] = useState<{name:string, path:string}[]>([]);
     const [selectedDb, setSelectedDb] = useState<string>('sys.db');
-    const [database, setDatabase] = useState([]);
-    const [list, setList] = useState([]);
+    const [database, setDatabase] = useState<any[]>([]);
+    const [list, setList] = useState<any[]>([]);
     const [page, setPage] = useState(1);
     const [count, setCount] = useState(0);
     const [loading, setLoading] = useState(false)
-    const [header, setHeader] = useState<string[]>([]);
+    const [header, setHeader] = useState<Header[]>([]);
     const [hiddenPagebar, setHiddenPagebar] = useState(false);
     const [comboField, setComboField] = useState<any[]>([]);
     const [filterColumn, setFilterColumn] = useState<Header>();
@@ -82,14 +147,55 @@ export default function List(props: any): any {
     const [filterValue, setFilterValue] = useState('');
     const [filter,setFilter] = useState<Condition[]>([])
     const [idxList,setIdxList] = useState<string[]>([]);
+    const [selectedFrom,setSelectedFrom] = useState<string>('');
+    const [showSqlConsole,setShowSqlConsole] = useState<boolean>(true);
+    const [isSqlMode, setIsSqlMode] = useState<boolean>(false);
+    const sqlTableNames = getSqlTableNames(database);
     let modal = useRef<CKModal>(null);
     let menu = useRef<Menu>(null);
     let tableName = useRef<string>('');
     let table = useRef<Table>(null);
+    let split = useRef<HTMLDivElement>(null);
+    const selectedDbRef = useRef<string>('sys.db');
+
+    function dragSplitHandler(e: React.MouseEvent<HTMLDivElement>) {
+        e.preventDefault();
+        const startX = e.clientX;
+        const mainEl = e.currentTarget.parentElement;
+        if (!mainEl) return;
+        
+        const listEl = mainEl.querySelector('.db-list') as HTMLDivElement;
+        const splitEl = e.currentTarget as HTMLDivElement;
+        if (!listEl || !splitEl) return;
+
+        const startWidth = listEl.offsetWidth;
+        splitEl.classList.add('dragging');
+
+        const doDrag = (moveEvent: MouseEvent) => {
+            const deltaX = moveEvent.clientX - startX;
+            const newWidth = startWidth + deltaX;
+            if (newWidth >= 150 && newWidth <= 800) {
+                listEl.style.width = `${newWidth}px`;
+                mainEl.style.gridTemplateColumns = `${newWidth}px 1fr`;
+                splitEl.style.left = `${newWidth - 10}px`;
+            }
+        };
+
+        const stopDrag = () => {
+            splitEl.classList.remove('dragging');
+            document.removeEventListener('mousemove', doDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        };
+
+        document.addEventListener('mousemove', doDrag);
+        document.addEventListener('mouseup', stopDrag);
+    }
+
     useEffect(() => {
         getDbList();
         props.setTitle && props.setTitle('数据管理')
         document.getElementById("bolt-main")?.addEventListener("drop",drophandler,false)
+        
         return ()=>{
             document.getElementById("bolt-main")?.removeEventListener("drop",drophandler,false)
         }
@@ -118,9 +224,11 @@ export default function List(props: any): any {
                 setDbList(res.data);
                 const hasSys = res.data.some((item: any) => item.name === 'sys.db');
                 if (hasSys) {
+                    selectedDbRef.current = 'sys.db';
                     setSelectedDb('sys.db');
                     getMainTables('sys.db');
                 } else if (res.data.length > 0) {
+                    selectedDbRef.current = res.data[0].name;
                     setSelectedDb(res.data[0].name);
                     getMainTables(res.data[0].name);
                 }
@@ -131,6 +239,7 @@ export default function List(props: any): any {
     }
 
     function handleDbChange(dbName: string) {
+        selectedDbRef.current = dbName;
         setSelectedDb(dbName);
         setDatabase([]);
         setList([]);
@@ -138,6 +247,7 @@ export default function List(props: any): any {
         setCount(0);
         setFilterColumn(undefined);
         setFilterValue('');
+        setSelectedFrom('');
         tableName.current = '';
         getMainTables(dbName);
     }
@@ -285,9 +395,9 @@ export default function List(props: any): any {
     function openBackupList() {
         modal.current?.view({
             header:true,
-            title:"备份文件列表",
+            title:"备份文件列表("+selectedDbRef.current+")",
             width:'80%',
-            content: <BackupList/>,
+            content: <BackupList db={selectedDbRef.current}/>,
         })
     }
 
@@ -369,6 +479,42 @@ export default function List(props: any): any {
         });
     }
 
+    function openMetadataEdit(tblName?: string) {
+        const targetTable = tblName || tableName.current;
+        if (!targetTable) {
+            modal.current?.alert('请先选择一个数据表');
+            return;
+        }
+        modal.current?.view({
+            header: true,
+            title: `管理表元数据 [${targetTable}]`,
+            width: '80%',
+            content: <MetadataEdit db={selectedDbRef.current} table={targetTable} />,
+        });
+    }
+
+    function reIndexTable(tblName: string) {
+        modal.current?.confirm({
+            title: "确认操作",
+            content: `确定要刷新数据表 [${tblName}] 的索引吗？这将会清空并重新扫描生成该表的所有索引字段数据。`,
+        }, (flag) => {
+            if (flag) {
+                modal.current?.loading("正在刷新索引...");
+                Fetch('/serv/bolt/re_index', {
+                    db: selectedDbRef.current,
+                    table: tblName,
+                }, (res: Response) => {
+                    modal.current?.close();
+                    if (res.status) {
+                        modal.current?.alert("索引刷新成功！");
+                    } else {
+                        modal.current?.alert("刷新索引失败：" + res.msg);
+                    }
+                });
+            }
+        });
+    }
+
     return (
         <div className='boltdb h-100' id='bolt-main' onDragOver={(e)=>{
             e.preventDefault();
@@ -386,6 +532,9 @@ export default function List(props: any): any {
                     }}></Button>
                     <Button size='sm' icon='chart-bar' theme={Theme.warning} tip='查看数据库状态' onClick={()=>{
                         viewStats()
+                    }}></Button>
+                    <Button size='sm' icon='terminal' theme={showSqlConsole?Theme.primary:Theme.secondary} tip='SQL 执行管理' onClick={()=>{
+                        setShowSqlConsole(!showSqlConsole)
                     }}></Button>
                     <Button size='sm' className='ms-auto' icon='sync-alt' tip='刷新列表' onClick={()=>{
                         getMainTables()
@@ -420,6 +569,9 @@ export default function List(props: any): any {
                     <Button size='sm' icon='share-square' theme={Theme.warning} tip='导出当前数据' onClick={()=>{
                         exportDate(tableName.current,1,null)
                     }}></Button>
+                    <Button size='sm' icon='cog' theme={Theme.info} tip='编辑当前表元数据(Metadata)' onClick={()=>{
+                        openMetadataEdit()
+                    }}></Button>
                     <Button size='sm' theme={Theme.success} className='ms-auto' icon='download' onClick={()=>{
                         openExport()
                     }}></Button>
@@ -438,11 +590,11 @@ export default function List(props: any): any {
                         </ComboBox>
                     </div>
                     <div className="flex-grow-1 overflow-auto">
-                        <Tree width='300px' data={database} onMenu={(e,data,id)=>{
+                        <Tree width='300px' data={database} onMenu={(e,data:DatabaseNode,id)=>{
                             e.preventDefault()
                             // console.log(data,id)
                             menu.current?.show({evt:e,type:"mouse",data:data})
-                        }} onClick={(e,data,id)=>{
+                        }} onClick={(e,data:DatabaseNode,id)=>{
                             if (data.children) {
                                 const idxList:string[] = [];
                                 data.children.forEach((item:any)=>{
@@ -453,6 +605,12 @@ export default function List(props: any): any {
                                 })
                                 setIdxList(idxList)
                             }
+                            if (data.children && data.type !== 'schema_table') {
+                                setSelectedFrom(data.from || data.key || '')
+                                return
+                            }
+                            setSelectedFrom(data.from || '')
+                            setIsSqlMode(false)
                             getTableData(data.key,1)
                             setFilterColumn(undefined)
                             setFilterValue('')
@@ -460,67 +618,80 @@ export default function List(props: any): any {
                     </div>
                 </div>
                 <div className='db-main'>
-                    <Table ref={table} headerTheme={Theme.primary} sm headerAlign='center' loading={loading} striped={false} width='100%' height='100%' hover select emptyText="没有数据" data={list}>
-                        <Table.Header align='center' width='50px' field='id' text='ID'/>
-                        {header?header.map((item:any, index) => {
-                            return <Table.Header key={index} align='center' width='180px' field={item.name} text={item.name} onFormat={(val)=>{
-                                if (!val) {
-                                    return '';
-                                }
-                                if (val && typeof val === 'object') {
-                                    if (Object.keys(val).length === 0) {
-                                        return <span className='badge bg-secondary'>empty</span>
-                                    }
-                                    return <Button size='sm' onClick={()=>{
-                                            viewJson(val)
-                                        }}>查看对像</Button>
-                                }
-                                if (typeof val === 'number' && val.toString().length === 10) {
-                                    return <>
-                                        {dayjs.unix(val).format('YYYY-MM-DD HH:mm:ss')}<br/>
-                                        <span className='text-primary'>{val}</span>
-                                    </>
-                                }
-                                if (val.length > 100) {
-                                    return <Button theme={Theme.link} className='text-break' onClick={()=>{
-                                        viewJson(val)
-                                    }}>{val.substring(0,100)} ...</Button>
-                                    
-                                }
-                                return <span className='text-break'>{val}</span>
+                    {showSqlConsole ? <SqlConsole db={selectedDb} from={selectedFrom} table={tableName.current} fields={header} tables={sqlTableNames} page={page} number={50} onResult={(rows, heads, total, curPage)=>{
+                        setIsSqlMode(true)
+                        setPage(curPage)
+                        setCount(total)
+                        setHeader(heads)
+                        setList(rows)
+                    }} onExecuted={()=>{
+                        if (tableName.current) {
+                            getTableData(tableName.current,page,[])
+                        }
+                    }}/> : undefined}
+                    <div className='bolt-table-area'>
+                        <Table ref={table} headerTheme={Theme.primary} sm headerAlign='center' loading={loading} striped={false} width='100%' height='100%' hover select emptyText="没有数据" data={list}>
+                            <Table.Header align='center' width='50px' field='id' text='ID'/>
+                            {header?header.map((item:any, index) => {
+                                return <Table.Header key={index} align='center' width='180px' field={item.name} text={item.name} onFormat={(val)=>{
+                                    return formatBoltCellValue(val, viewJson)
+                                }}/>
+                            }):undefined}
+                            <Table.Header afterHold align='center' field='' onFormat={(val,row)=>{
+                                return <Button size='sm' icon='search' outline onClick={()=>{
+                                    edit(row)
+                                }}>修改</Button>
                             }}/>
-                        }):undefined}
-                        <Table.Header afterHold align='center' field='' onFormat={(val,row)=>{
-                            return <Button size='sm' icon='search' outline onClick={()=>{
-                                edit(row)
-                            }}>修改</Button>
-                        }}/>
-                    </Table>
-                    <div className='pages d-flex'>
-                        <div className='hidden-btn' onClick={()=>{
-                            setHiddenPagebar(!hiddenPagebar)
-                        }}>
-                            <Icon className='align-items-center' icon={hiddenPagebar?'chevron-circle-left':'chevron-circle-right'}/>
-                        </div>
-                        <div className={hiddenPagebar?'d-none':''}>
-                            <Pagination
-                                size='sm'
-                                count={count}
-                                current={page}
-                                number={50}
-                                showPages={10}
-                                onSelect={(page, showNumber) => {
-                                    getTableData(tableName.current,parseInt(page))
-                                }}
-                            />
+                        </Table>
+                        <div className='pages d-flex'>
+                            <div className='hidden-btn' onClick={()=>{
+                                setHiddenPagebar(!hiddenPagebar)
+                            }}>
+                                <Icon className='align-items-center' icon={hiddenPagebar?'chevron-circle-left':'chevron-circle-right'}/>
+                            </div>
+                            <div className={hiddenPagebar?'d-none':''}>
+                                <Pagination
+                                    size='sm'
+                                    count={count}
+                                    current={page}
+                                    number={50}
+                                    showPages={10}
+                                    onSelect={(p, showNumber) => {
+                                        const parsedPage = parseInt(p);
+                                        if (isSqlMode) {
+                                            setPage(parsedPage);
+                                        } else {
+                                            getTableData(tableName.current,parsedPage);
+                                        }
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div className="db-split" ref={split} onMouseDown={dragSplitHandler}/>
             </div>
             <Modal ref={modal} />
             <Menu ref={menu}>
-                <MenuItem field='import' text='删除数据表' onClick={(e,field,data)=>{
-                    deleteTable(data.text)
+                <MenuItem field='metadata' text='编辑元数据' onClick={(e,field,data:DatabaseNode)=>{
+                    if (data.type === 'schema_table' || data.type === 'legacy') {
+                        openMetadataEdit(data.key)
+                    } else {
+                        modal.current?.alert('当前节点不是有效的数据表')
+                    }
+                }}>编辑元数据</MenuItem>
+                <MenuItem field='none' step/>
+                <MenuItem field='reindex' text='刷新表索引' onClick={(e,field,data:DatabaseNode)=>{
+                    if (data.type === 'schema_table' || data.type === 'legacy') {
+                        reIndexTable(data.key)
+                    } else {
+                        modal.current?.alert('当前节点不是有效的数据表')
+                    }
+                }}>刷新表索引</MenuItem>
+                <MenuItem field='none' step/>
+                <MenuItem field='import' text='删除数据表' onClick={(e,field,data:DatabaseNode)=>{
+                    const key = data.type === 'schema_index' && data.from && data.table ? `${data.from}|${data.table}` : data.key
+                    deleteTable(key)
                 }}><span className='text-danger'>删除数据表</span></MenuItem>
                 <MenuItem field='none' step/>
                 <MenuItem field='import' text='导入数据' onClick={(e,field,data)=>{
