@@ -2,6 +2,7 @@ import {
     Button,
     CKModal,
     ComboBox,
+    Common,
     Icon,
     Input,
     Menu,
@@ -23,7 +24,6 @@ import 'react-json-view-lite/dist/index.css';
 import Edit from './Edit';
 import MetadataEdit from './MetadataEdit';
 import BackupList from './BackupList';
-import BackupTaskList from './BackupTaskList';
 import SqlConsole from './SqlConsole';
 import { GetModules } from '../../common/Funcs';
 
@@ -383,21 +383,12 @@ export default function List(props: any): any {
         })
     }
 
-    function openBackupTaskList() {
-        modal.current?.view({
-            header: true,
-            title: "备份任务列表",
-            width: '80%',
-            content: <BackupTaskList />,
-        })
-    }
-
     function openBackupList() {
         modal.current?.view({
             header:true,
-            title:"备份文件列表("+selectedDbRef.current+")",
+            title:"备份管理("+selectedDbRef.current+")",
             width:'80%',
-            content: <BackupList db={selectedDbRef.current}/>,
+            content: <BackupList db={selectedDbRef.current} random={Common.RandomString(10)}/>,
         })
     }
 
@@ -521,10 +512,7 @@ export default function List(props: any): any {
         }}>
             <div className='boltdb-tools'>
                 <div className="filter comm-form">
-                    <Button size='sm' icon='tasks' theme={Theme.info} tip='查看备份任务列表' onClick={()=>{
-                        openBackupTaskList()
-                    }}></Button>
-                    <Button size='sm' icon='folder-open' theme={Theme.secondary} tip='查看备份文件列表' onClick={()=>{
+                    <Button size='sm' icon='tasks' theme={Theme.info} tip='备份管理' onClick={()=>{
                         openBackupList()
                     }}></Button>
                     <Button size='sm' icon='plus' theme={Theme.primary} tip='导入数据' onClick={()=>{
