@@ -85,6 +85,27 @@ export default function List(props: any): any {
         });
     }
 
+    function reloadSetupMenu() {
+        modal.current?.confirm({
+            title: '警告',
+            content: '确定要重新加载 Setup 菜单并重置管理员权限吗？此操作会使用 setup/menu.json 重新覆盖当前的所有菜单！',
+        }, (flag) => {
+            if (flag) {
+                setLoading(true)
+                Fetch('/serv/menu/reload_setup', { }, (res: Response) => {
+                    setLoading(false)
+                    if (res.status) {
+                        modal.current?.alert('重载成功，菜单已刷新，所有权限已赋给管理员组');
+                        getData(1);
+                    } else {
+                        modal.current?.alert('重载菜单出错：' + res.msg);
+                    }
+                });
+            }
+        });
+    }
+
+    console.log('init menu')
     return (
         <Card>
             <div className="mb-2">
@@ -105,6 +126,9 @@ export default function List(props: any): any {
                 <Button tip='导出菜单数据' className='ms-1' onClick={()=>{
                     exportMenu()
                 }} icon='download' theme={Theme.warning}></Button>
+                <Button tip='重新加载 Setup 菜单并赋权' className='ms-1' onClick={()=>{
+                    reloadSetupMenu()
+                }} icon='sync-alt' theme={Theme.danger}></Button>
                 <Button className='float-end' theme={Theme.success} onClick={()=>{
                     modal.current?.view({
                         title:"添加菜单",

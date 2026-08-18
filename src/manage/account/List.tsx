@@ -55,7 +55,25 @@ export default function List(props: any): any {
                 setCount(res.data.count);
                 setPage(page);
             } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) {
+                    setList([]);
+                    setCount(0);
+                    return;
+                }
                 modal.current?.alert('用户数据获取出错：' + res.msg);
+            }
+        });
+    }
+
+    function reIndex() {
+        setLoading(true)
+        Fetch('/serv/acc/reindex', { }, (res: Response) => {
+            setLoading(false)
+            if (res.status) {
+                getUserData(1);
+            } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) return;
+                modal.current?.alert('重建索引出错：' + res.msg);
             }
         });
     }
@@ -74,6 +92,9 @@ export default function List(props: any): any {
                 <Button icon="trash-alt" outline theme={Theme.danger}>
                     清除
                 </Button>
+                <Button className='ms-1' onClick={()=>{
+                    reIndex()
+                }} icon='wrench' tip='重建索引' theme={Theme.link}/>
                 <Button className='float-end' theme={Theme.success} onClick={()=>{
                     modal.current?.view({
                         title:"添加用户",

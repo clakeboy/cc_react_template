@@ -57,7 +57,21 @@ export default function List(props: any): any {
                 setCount(res.data.count);
                 setPage(page);
             } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) return;
                 modal.current?.alert('数据获取出错：' + res.msg);
+            }
+        });
+    }
+
+    function reIndex() {
+        setLoading(true)
+        Fetch('/serv/group/reindex', { }, (res: Response) => {
+            setLoading(false)
+            if (res.status) {
+                getUserData(1);
+            } else {
+                if (res.msg && res.msg.toLowerCase().includes('not found')) return;
+                modal.current?.alert('重建索引出错：' + res.msg);
             }
         });
     }
@@ -76,7 +90,11 @@ export default function List(props: any): any {
                 <Button icon="trash-alt" outline theme={Theme.danger}>
                     清除
                 </Button>
+                <Button className='ms-1' onClick={()=>{
+                    reIndex()
+                }} icon='wrench' tip='重建索引' theme={Theme.link}/>
                 <Button className='float-end' theme={Theme.success} onClick={()=>{
+
                     modal.current?.view({
                         title:"添加用户组",
                         header:true,
@@ -87,18 +105,24 @@ export default function List(props: any): any {
             </div>
             <hr />
             <div className="comm-form">
-                <Form onChange={(field,val)=>{
-                    setConditions({...conditions,[field]:val})
+                <Form onChange={(field, val, row, combo) => {
+                    if (combo) {
+                        setConditions({ ...conditions, [field]: row ? row.value : val });
+                    } else {
+                        setConditions({ ...conditions, [field]: val });
+                    }
                 }}>
                     <Input field='name' placeholder="用户组名查找" data={conditions.name ?? ''} />
                 </Form>
             </div>
             
             <div>
-                <Table loading={loading} hover select={false} headerTheme={Theme.primary} emptyText="没有数据" data={list}>
-                    <TableHeader field="id" text="组Id" />
-                    <TableHeader field="name" text="用户组名" />
+                <Table width='100%' loading={loading} hover select={false} headerTheme={Theme.primary} emptyText="没有数据" data={list}>
+                    <TableHeader align='center' width='100px' field="id" text="组Id" />
+                    <TableHeader align='left' width='200px' field="name" text="用户组名" />
                     <TableHeader
+                        align='center'
+                        width='180px'
                         field="created_date"
                         text="创建时间"
                         onFormat={(val) => {
@@ -107,6 +131,8 @@ export default function List(props: any): any {
                         }}
                     />
                     <Table.Header
+                        align='center'
+                        width='180px'
                         field="modified_date"
                         text="修改时间"
                         onFormat={(val) => {
@@ -114,7 +140,7 @@ export default function List(props: any): any {
                             return dayjs.unix(val).format('YYYY-MM-DD HH:mm:ss');
                         }}
                     />
-                    <TableHeader field="modified_date" text="操作" align='center' onFormat={(val,row)=>{
+                    <TableHeader afterHold field="modified_date" text="操作" align='center' width='100px' onFormat={(val,row)=>{
                         return <ButtonGroup>
                         <Button onClick={()=>{
                             modal.current?.view({
