@@ -11,6 +11,7 @@ import '../assets/css/theme-dark.less';
 import '../assets/css/themes.less';
 import { t, changeLanguage } from 'i18next';
 import Left from './Left';
+import Watermark from './Watermark';
 import Fetch from '../common/Fetch';
 import Storage from '../common/Storage';
 import { initTheme, ThemeType, setTheme } from '../common/Theme';
@@ -51,7 +52,7 @@ export default function App() {
 
     function changeTitle(title: string) {
         setTitle(title);
-        document.title = 'CCTP - '+title;
+        document.title = 'pcbx_chancel - '+title;
     }
 
     function handleThemeChange(theme: ThemeType) {
@@ -60,23 +61,31 @@ export default function App() {
     }
 
     if (location.pathname === "/setup") {
-        return <Setup />
+        return <>
+            <Watermark user={user} />
+            <Setup />
+        </>
     }
 
     if (!login) {
         return (
-            <Login
-                theme={currentTheme}
-                setTheme={handleThemeChange}
-                lang={lang}
-                query={GetQuery(location.search)}
-                changeLang={changeLang}
-                setLogin={changeLogin}
-            />
+            <>
+                <Watermark user={user} />
+                <Login
+                    theme={currentTheme}
+                    setTheme={handleThemeChange}
+                    lang={lang}
+                    query={GetQuery(location.search)}
+                    changeLang={changeLang}
+                    setLogin={changeLogin}
+                />
+            </>
         );
     }
     return (
-        <div className="d-flex flex-column h-100">
+        <>
+            <Watermark user={user} />
+            <div className="d-flex flex-column h-100">
             <Header
                 title={title}
                 lang={lang}
@@ -102,6 +111,7 @@ export default function App() {
                     />
                 </div>
             </div>
-        </div>
+            </div>
+        </>
     );
 }
