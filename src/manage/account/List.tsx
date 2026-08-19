@@ -2,6 +2,7 @@ import {
     Button,
     CKModal,
     Card,
+    Common,
     Container,
     Form,
     Input,
@@ -99,7 +100,7 @@ export default function List(props: any): any {
                     modal.current?.view({
                         title:"添加用户",
                         header:true,
-                        content: <Loader loadPath="/account/Edit" import={GetModules}/>,
+                        content: <Loader loadPath="/account/Edit" import={GetModules} random={Common.RandomString(8)}/>,
                         width:'400px',
                     })
                 }}>添加用户</Button>

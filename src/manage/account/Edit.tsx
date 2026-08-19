@@ -20,9 +20,10 @@ interface Props {
     id?:number
     callback?:()=>void
     parent?: CKModal
+    random?:string
 }
 
-export default function Edit({id,callback,parent}:Props):any {
+export default function Edit({id,callback,parent,random}:Props):any {
     const [data,setData] = useState<Data>({})
     const [edit,setEdit] = useState(false)
     const [groupList,setGroupList] = useState<any[]>([])
@@ -46,7 +47,7 @@ export default function Edit({id,callback,parent}:Props):any {
             setData({})
             setEdit(false)
         }
-    },[id])
+    },[id,random])
 
     useEffect(()=>{
         Fetch("/serv/group/query",{number:100,page:1},(resp:Response)=>{
