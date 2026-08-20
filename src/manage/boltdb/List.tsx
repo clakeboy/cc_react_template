@@ -80,7 +80,7 @@ function buildCondition(cond: conditions): Condtion[] {
 function getSqlTableNames(nodes: DatabaseNode[]): string[] {
     const names:string[] = [];
     const walk = (items: DatabaseNode[]) => {
-        items.forEach((item) => {
+        items?.forEach((item) => {
             if (item.table && !names.includes(item.table)) {
                 names.push(item.table);
             }
